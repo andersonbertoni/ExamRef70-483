@@ -55,12 +55,17 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.ParallelInvoke:
                         ParallelInvokeExample();
                         break;
+                    case Items.ParallelForEach:
+                        ParallelForEachExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
                 }
             }
         }
+
+        #region Parallel Invoke Example Methods
 
         static void Task1()
         {
@@ -82,5 +87,30 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             Console.WriteLine("Finished processing. Press a key to end.");
             Console.ReadKey();
         }
+
+        #endregion
+
+        #region Parallel ForEach Example Methods
+
+        static void WorkOnItem(object item)
+        {
+            Console.WriteLine("Started working on " + item);
+            Thread.Sleep(100);
+            Console.WriteLine("Finished working on " + item);
+        }
+
+        private static void ParallelForEachExample()
+        {
+            var items = Enumerable.Range(0, 500);
+            Parallel.ForEach(items, item =>
+            {
+                WorkOnItem(item);
+            });
+
+            Console.WriteLine("Finished processing. Press a key to end");
+            Console.ReadKey();
+        }
+
+        #endregion
     }
 }

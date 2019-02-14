@@ -18,7 +18,13 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             ParallelFor = 3,
             ManagingParallelForLoop = 4,
             ParallelLINQ = 5,
-            InformingParallelization = 6
+            InformingParallelization = 6,
+            UsingAsOrdered = 7,
+            UsingAsSequential = 8,
+            UsingForAll = 9,
+            ExceptionsInPLINQ = 10, 
+            CreateATask = 11,
+            RunATask = 12
         }
 
         static void Main(string[] args)
@@ -43,6 +49,12 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.WriteLine("4 - Managing a Parallel For Loop;");
                     Console.WriteLine("5 - Parallel LINQ;");
                     Console.WriteLine("6 - Informing Parallelization;");
+                    Console.WriteLine("7 - Using AsOrdered;");
+                    Console.WriteLine("8 - Using AsSequential;");
+                    Console.WriteLine("9 - Using ForAll;");
+                    Console.WriteLine("10 - Exceptions in PLINQ;");
+                    Console.WriteLine("11 - Create a Task;");
+                    Console.WriteLine("12 - Run a Task;");
                     Console.WriteLine("S - Sair");
 
                     string valor = Console.ReadLine().ToLower();
@@ -78,6 +90,24 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.InformingParallelization:
                         InformingParallelizationExample();
                         break;
+                    case Items.UsingAsOrdered:
+                        UsingAsOrderedExample();
+                        break;
+                    case Items.UsingAsSequential:
+                        UsingAsSequentialExample();
+                        break;
+                    case Items.UsingForAll:
+                        UsingForAllExample();
+                        break;
+                    case Items.ExceptionsInPLINQ:
+                        ExceptionsInPLINQExample();
+                        break;
+                    case Items.CreateATask:
+                        CreateATaskExample();
+                        break;
+                    case Items.RunATask:
+                        RunATaskExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -89,7 +119,7 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.ReadKey();
                 }
             }
-        }       
+        }
 
         #region Parallel Invoke Example Methods
 
@@ -170,7 +200,7 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
 
         #endregion
 
-        #region Parallel LINQ, Informing Parallelization Example Methods and Classes
+        #region Parallel LINQ, Informing Parallelization, Using AsOrdered, Using AsSequential, Using ForAll, Exceptions In PLINQ Example Methods and Classes
 
         class Person
         {
@@ -181,9 +211,9 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             {
                 return new Person[]
                 {
-                    new Person { Name = "Alan", City = "Hull"},
+                    new Person { Name = "Alan", City = ""},
                     new Person { Name = "Beryl", City = "Seattle"},
-                    new Person { Name = "Charles", City = "London"},
+                    new Person { Name = "Charles", City = ""},
                     new Person { Name = "David", City = "Seattle"},
                     new Person { Name = "Eddy", City = "Paris"},
                     new Person { Name = "Fred", City = "Berlin"},
@@ -227,6 +257,121 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
 
             foreach (var person in result)
                 Console.WriteLine(person.Name);
+        }
+
+        #endregion
+
+        #region Using AsOrdered Example Methods
+        
+        private static void UsingAsOrderedExample()
+        {
+            Person[] people = Person.ListPerson();
+
+            var result = from person in people.AsParallel().AsOrdered()
+                         where person.City == "Seattle"
+                         select person;
+
+            foreach(var person in result)
+                Console.WriteLine(person.Name);
+        }
+
+        #endregion
+
+        #region Using AsSequential Example Methods
+
+        private static void UsingAsSequentialExample()
+        {
+            Person[] people = Person.ListPerson();
+
+            var result = (from person in people.AsParallel()
+                          where person.City == "Seattle"
+                          orderby (person.Name)
+                          select new
+                          {
+                              person.Name
+                          }).AsSequential().Take(4);
+
+            foreach (var person in result)
+                Console.WriteLine(person.Name);
+        }
+
+        #endregion
+
+        #region Using ForAll Example Methods
+
+        private static void UsingForAllExample()
+        {
+            Person[] people = Person.ListPerson();
+
+            var result = from person in people.AsParallel()
+                         where person.City == "Seattle"
+                         select person;
+
+            result.ForAll(person => Console.WriteLine(person.Name));
+        }
+
+        #endregion
+
+        #region Exceptions In PLINQ Example Methods
+
+        public static bool CheckCity(string name)
+        {
+            if (name == "")
+                throw new ArgumentException(name);
+
+            return name == "Seattle";
+        }
+        
+        private static void ExceptionsInPLINQExample()
+        {
+            Person[] people = Person.ListPerson();
+
+            try
+            {
+                var result = from person in people.AsParallel()
+                             where CheckCity(person.City)
+                             select person;
+
+                result.ForAll(person => Console.WriteLine(person.Name));
+
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine(ex.InnerExceptions.Count() + " exceptions.");
+            }
+        }
+
+        #endregion
+
+        #region Create a Task, Run a Task Example Methods
+
+        public static void DoWork()
+        {
+            Console.WriteLine("Work starting");
+            Thread.Sleep(2000);
+            Console.WriteLine("Work finished");
+        }
+
+        #endregion
+
+        #region Create a Task Example Methods
+
+        private static void CreateATaskExample()
+        {
+            Task newTask = new Task(() => DoWork());
+
+            newTask.Start();
+            newTask.Wait();
+        }
+
+        #endregion
+        
+        #region Run a Task Example Methods
+
+        private static void RunATaskExample()
+        {
+            Task newTask = Task.Run(() => DoWork());
+            newTask.Wait();
         }
 
         #endregion

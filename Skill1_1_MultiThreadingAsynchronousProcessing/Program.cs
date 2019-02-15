@@ -24,7 +24,9 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             UsingForAll = 9,
             ExceptionsInPLINQ = 10, 
             CreateATask = 11,
-            RunATask = 12
+            RunATask = 12,
+            TaskReturningAValue = 13,
+            TaskWaitAll = 14
         }
 
         static void Main(string[] args)
@@ -55,6 +57,8 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.WriteLine("10 - Exceptions in PLINQ;");
                     Console.WriteLine("11 - Create a Task;");
                     Console.WriteLine("12 - Run a Task;");
+                    Console.WriteLine("13 - Task Returning a Value;");
+                    Console.WriteLine("14 - Task WaitAll;");
                     Console.WriteLine("S - Sair");
 
                     string valor = Console.ReadLine().ToLower();
@@ -108,6 +112,12 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.RunATask:
                         RunATaskExample();
                         break;
+                    case Items.TaskReturningAValue:
+                        TaskReturningAValueExample();
+                        break;
+                    case Items.TaskWaitAll:
+                        TaskWaitAllExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -119,7 +129,7 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.ReadKey();
                 }
             }
-        }
+        }        
 
         #region Parallel Invoke Example Methods
 
@@ -372,6 +382,50 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
         {
             Task newTask = Task.Run(() => DoWork());
             newTask.Wait();
+        }
+
+        #endregion
+
+        #region Task Returning a Value Example Methods 
+
+        public static int CalculateResult()
+        {
+            Console.WriteLine("Work starting");
+            Thread.Sleep(2000);
+            Console.WriteLine("Work finished");
+            return 99;
+        }
+
+        private static void TaskReturningAValueExample()
+        {
+            Task<int> task = Task.Run(() =>
+            {
+                return CalculateResult();
+            });
+
+            Console.WriteLine(task.Result);
+        }
+
+        #endregion
+
+        #region Task WaitAll Example Methods
+
+        public static void DoWork(int i)
+        {
+            Console.WriteLine("Task {0} starting", i);
+            Thread.Sleep(2000);
+            Console.WriteLine("Task {0} finished", i);
+        }
+
+        private static void TaskWaitAllExample()
+        {
+            Task[] Tasks = new Task[10];
+            for(int i = 0; i < 10; i++)
+            {
+                int taskNum = i; //make a local copy of the loop counter so that the correct task number is passed into the lambda expression
+                Tasks[i] = Task.Run(() => DoWork(taskNum));
+            }
+            Task.WaitAll(Tasks);
         }
 
         #endregion

@@ -26,7 +26,9 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             CreateATask = 11,
             RunATask = 12,
             TaskReturningAValue = 13,
-            TaskWaitAll = 14
+            TaskWaitAll = 14,
+            ContinuationTasks = 15,
+            ContinuationOptions = 16
         }
 
         static void Main(string[] args)
@@ -59,6 +61,8 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.WriteLine("12 - Run a Task;");
                     Console.WriteLine("13 - Task Returning a Value;");
                     Console.WriteLine("14 - Task WaitAll;");
+                    Console.WriteLine("15 - Continuation Tasks;");
+                    Console.WriteLine("16 - Continuation Options");
                     Console.WriteLine("S - Sair");
 
                     string valor = Console.ReadLine().ToLower();
@@ -118,18 +122,24 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.TaskWaitAll:
                         TaskWaitAllExample();
                         break;
+                    case Items.ContinuationTasks:
+                        ContinuationTasksExample();
+                        break;
+                    case Items.ContinuationOptions:
+                        ContinuationOptionsExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
                 }
 
                 if (run)
-                {
+                {                    
                     Console.WriteLine("Finished processing. Press a key to end.");
                     Console.ReadKey();
                 }
             }
-        }        
+        }      
 
         #region Parallel Invoke Example Methods
 
@@ -426,6 +436,48 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                 Tasks[i] = Task.Run(() => DoWork(taskNum));
             }
             Task.WaitAll(Tasks);
+        }
+
+        #endregion
+
+        #region Continuation Tasks, Continuation Options Examples Methods
+
+        public static void HelloTask()
+        {            
+            Thread.Sleep(1000);                
+            Console.WriteLine("Hello");            
+        }
+
+        public static void WorldTask()
+        {
+            Thread.Sleep(1000);
+            Console.WriteLine("World");
+        }
+
+        #endregion
+
+        #region Continuation Tasks Example Methods        
+
+        private static void ContinuationTasksExample()
+        {
+            Task task = Task.Run(() => HelloTask());
+            task.ContinueWith((prevTask) => WorldTask()).Wait();
+        }
+
+        #endregion
+
+        #region Continuation Options Example Methods
+
+        private static void ExceptionTask()
+        {
+            Console.WriteLine("An error occurred.");
+        }
+
+        private static void ContinuationOptionsExample()
+        {
+            Task task = Task.Run(() => HelloTask());
+            task.ContinueWith((prevTask) => WorldTask(), TaskContinuationOptions.OnlyOnRanToCompletion).Wait();
+            task.ContinueWith((prevTask) => ExceptionTask(), TaskContinuationOptions.OnlyOnFaulted).Wait();
         }
 
         #endregion

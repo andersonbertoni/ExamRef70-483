@@ -28,7 +28,10 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             TaskReturningAValue = 13,
             TaskWaitAll = 14,
             ContinuationTasks = 15,
-            ContinuationOptions = 16
+            ContinuationOptions = 16,
+            AttachedChildTasks = 17,
+            CreatingThreads = 18,
+            UsingThreadStart = 19
         }
 
         static void Main(string[] args)
@@ -63,6 +66,9 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.WriteLine("14 - Task WaitAll;");
                     Console.WriteLine("15 - Continuation Tasks;");
                     Console.WriteLine("16 - Continuation Options");
+                    Console.WriteLine("17 - Attached Child Tasks;");
+                    Console.WriteLine("18 - Creating Threads;");
+                    Console.WriteLine("19 - Using ThreadStart;");
                     Console.WriteLine("S - Sair");
 
                     string valor = Console.ReadLine().ToLower();
@@ -128,18 +134,32 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.ContinuationOptions:
                         ContinuationOptionsExample();
                         break;
+                    case Items.AttachedChildTasks:
+                        AttachedChildTasksExample();
+                        break;
+                    case Items.CreatingThreads:
+                        CreatingThreadsExample();
+                        break;
+                    case Items.UsingThreadStart:
+                        UsingThreadStartExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
                 }
 
                 if (run)
-                {                    
+                {
+                    /* Se o exemplo for relacionado com Thread, espero 1 seg antes de exibir a mensagem final. 
+                     * Caso contrário o sistema printa a mensagem final antes da mensagem do exemplo */
+                    if (Convert.ToInt32(item) > 17) 
+                        Thread.Sleep(1000);
+
                     Console.WriteLine("Finished processing. Press a key to end.");
                     Console.ReadKey();
                 }
             }
-        }      
+        }        
 
         #region Parallel Invoke Example Methods
 
@@ -478,6 +498,65 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             Task task = Task.Run(() => HelloTask());
             task.ContinueWith((prevTask) => WorldTask(), TaskContinuationOptions.OnlyOnRanToCompletion).Wait();
             task.ContinueWith((prevTask) => ExceptionTask(), TaskContinuationOptions.OnlyOnFaulted).Wait();
+        }
+
+        #endregion
+
+        #region Attached Child Tasks Example Methods
+
+        public static void DoChild(object state)
+        {
+            Console.WriteLine("Child {0} starting", state);
+            Thread.Sleep(2000);
+            Console.WriteLine("Child {0} finished", state);
+        }
+
+        private static void AttachedChildTasksExample()
+        {
+            var parent = Task.Factory.StartNew(() =>
+            {
+                Console.WriteLine("Parent starts");
+                for (int i = 0; i < 10; i++)
+                {
+                    int taskNo = i;
+                    Task.Factory.StartNew((x) => DoChild(x), //lambda expression
+                                                 taskNo,     //state object
+                                                 TaskCreationOptions.AttachedToParent); //
+                }
+            });
+
+            parent.Wait(); //will wait for all the attached children to complete
+        }
+
+        #endregion
+
+        #region Creating Threads, Using Thread Start Example Methods
+
+        static void ThreadHello()
+        {
+            Console.WriteLine("Hello from the thread");
+            Thread.Sleep(2000);
+        }
+
+        #endregion
+
+        #region Creating Threads Example Methods
+
+        private static void CreatingThreadsExample()
+        {
+            Thread thread = new Thread(ThreadHello);
+            thread.Start();
+        }
+
+        #endregion
+
+        #region Using Thread Start Example Methods
+
+        private static void UsingThreadStartExample()
+        {
+            ThreadStart ts = new ThreadStart(ThreadHello);
+            Thread thread = new Thread(ts);
+            thread.Start();
         }
 
         #endregion

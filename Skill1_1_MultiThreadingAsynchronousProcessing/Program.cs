@@ -31,7 +31,12 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             ContinuationOptions = 16,
             AttachedChildTasks = 17,
             CreatingThreads = 18,
-            UsingThreadStart = 19
+            UsingThreadStart = 19,
+            ThreadAndLambdaExpressions = 20,
+            ParameterizedThreadStart = 21,
+            ThreadLambdaParameters = 22,
+            AbortingAThread = 23,
+            AbortingAThreadWithASharedFlagVariable = 24
         }
 
         static void Main(string[] args)
@@ -50,25 +55,16 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.WriteLine("--------------------------");
                     Console.WriteLine("Exam Ref 70-483 - Examples");
                     Console.WriteLine("--------------------------");
-                    Console.WriteLine("1 - Parallel Invoke;");
-                    Console.WriteLine("2 - Parallel For Each;");
-                    Console.WriteLine("3 - Parallel For;");
-                    Console.WriteLine("4 - Managing a Parallel For Loop;");
-                    Console.WriteLine("5 - Parallel LINQ;");
-                    Console.WriteLine("6 - Informing Parallelization;");
-                    Console.WriteLine("7 - Using AsOrdered;");
-                    Console.WriteLine("8 - Using AsSequential;");
-                    Console.WriteLine("9 - Using ForAll;");
-                    Console.WriteLine("10 - Exceptions in PLINQ;");
-                    Console.WriteLine("11 - Create a Task;");
-                    Console.WriteLine("12 - Run a Task;");
-                    Console.WriteLine("13 - Task Returning a Value;");
-                    Console.WriteLine("14 - Task WaitAll;");
-                    Console.WriteLine("15 - Continuation Tasks;");
-                    Console.WriteLine("16 - Continuation Options");
-                    Console.WriteLine("17 - Attached Child Tasks;");
-                    Console.WriteLine("18 - Creating Threads;");
-                    Console.WriteLine("19 - Using ThreadStart;");
+
+                    foreach (var j in Enum.GetValues(typeof(Items)))
+                    {
+                        if (Convert.ToInt32(j) > 0)
+                        {
+                            Console.WriteLine("{0} - {1};", Convert.ToInt32(Enum.Parse(typeof(Items), j.ToString())), 
+                                                            Enum.GetName(typeof(Items), j));
+                        }
+                    }
+                                        
                     Console.WriteLine("S - Sair");
 
                     string valor = Console.ReadLine().ToLower();
@@ -143,6 +139,21 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.UsingThreadStart:
                         UsingThreadStartExample();
                         break;
+                    case Items.ThreadAndLambdaExpressions:
+                        ThreadAndLambdaExpressionsExample();
+                        break;
+                    case Items.ParameterizedThreadStart:
+                        ParameterizedThreadStartExample();
+                        break;
+                    case Items.ThreadLambdaParameters:
+                        ThreadLambdaParametersExample();
+                        break;
+                    case Items.AbortingAThread:
+                        AbortingAThreadExample();
+                        break;
+                    case Items.AbortingAThreadWithASharedFlagVariable:
+                        AbortingAThreadWithASharedFlagVariableExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -159,7 +170,7 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.ReadKey();
                 }
             }
-        }        
+        }       
 
         #region Parallel Invoke Example Methods
 
@@ -557,6 +568,103 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             ThreadStart ts = new ThreadStart(ThreadHello);
             Thread thread = new Thread(ts);
             thread.Start();
+        }
+
+        #endregion
+
+        #region Thread And Lambda Expressions Example Methods
+
+        private static void ThreadAndLambdaExpressionsExample()
+        {
+            Thread thread = new Thread(() =>
+            {
+                Console.WriteLine("Hello from the thread");
+                Thread.Sleep(1000);
+            });
+
+            thread.Start();
+        }
+
+        #endregion
+
+        #region Parameterized Thread Start, Thread Lambda Parameters Example Methods
+
+        static void WorkOnData(object data)
+        {
+            Console.WriteLine("Working on: {0}", data);
+            Thread.Sleep(1000);
+        }
+
+        #endregion
+
+        #region Parameterized Thread Start Example Methods
+
+        private static void ParameterizedThreadStartExample()
+        {
+            ParameterizedThreadStart ps = new ParameterizedThreadStart(WorkOnData);
+            Thread thread = new Thread(ps);
+            thread.Start(99);
+        }
+
+        #endregion
+
+        #region Thread Lambda Parameters Example Methods
+
+        private static void ThreadLambdaParametersExample()
+        {
+            Thread thread = new Thread((data) =>
+            {
+                WorkOnData(data);
+            });
+
+            thread.Start(99);
+        }
+
+        #endregion
+
+        #region AbortingAThreadExample
+
+        private static void AbortingAThreadExample()
+        {
+            Thread tickThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    Console.WriteLine("Tick");
+                    Thread.Sleep(1000);
+                }
+            });
+
+            tickThread.Start();
+
+            Console.WriteLine("Press a key to stop the clock");
+            Console.ReadKey();
+            tickThread.Abort();
+        }
+
+        #endregion
+
+        #region Aborting A Thread With A Shared Flag Variable Example Methods
+
+        static bool tickRunning; //flag variable
+
+        private static void AbortingAThreadWithASharedFlagVariableExample()
+        {
+            tickRunning = true;
+
+            Thread tickThread = new Thread(() =>
+            {
+                while (tickRunning)
+                {
+                    Console.WriteLine("Tick");
+                    Thread.Sleep(1000);
+                }
+            });
+
+            tickThread.Start();
+            Console.WriteLine("Press a key to stop the clock");
+            Console.ReadKey();
+            tickRunning = false;            
         }
 
         #endregion

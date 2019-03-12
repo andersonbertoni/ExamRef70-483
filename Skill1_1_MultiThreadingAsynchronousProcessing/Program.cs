@@ -36,7 +36,11 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             ParameterizedThreadStart = 21,
             ThreadLambdaParameters = 22,
             AbortingAThread = 23,
-            AbortingAThreadWithASharedFlagVariable = 24
+            AbortingAThreadWithASharedFlagVariable = 24,
+            ThreadSynchronizationUsingJoin = 25,
+            ThreadLocal = 26,
+            ThreadContext = 27,
+            ThreadPool = 28
         }
 
         static void Main(string[] args)
@@ -154,6 +158,18 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     case Items.AbortingAThreadWithASharedFlagVariable:
                         AbortingAThreadWithASharedFlagVariableExample();
                         break;
+                    case Items.ThreadSynchronizationUsingJoin:
+                        ThreadSynchronizationUsingJoinExample();
+                        break;
+                    case Items.ThreadLocal:
+                        ThreadLocalExample();
+                        break;
+                    case Items.ThreadContext:
+                        ThreadContextExample();
+                        break;
+                    case Items.ThreadPool:
+                        ThreadPoolExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -170,7 +186,7 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     Console.ReadKey();
                 }
             }
-        }       
+        }
 
         #region Parallel Invoke Example Methods
 
@@ -665,6 +681,101 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             Console.WriteLine("Press a key to stop the clock");
             Console.ReadKey();
             tickRunning = false;            
+        }
+
+        #endregion
+
+        #region Thread Synchronization Using Join Example Methods
+
+        private static void ThreadSynchronizationUsingJoinExample()
+        {
+            Thread threadToWaitFor = new Thread(() =>
+            {
+                Console.WriteLine("Thread Starting");
+                Thread.Sleep(2000);
+                Console.WriteLine("Thread done");
+            });
+
+            threadToWaitFor.Start();
+            Console.WriteLine("Joining thread");
+            threadToWaitFor.Join();
+        }
+
+        #endregion
+
+        #region Thread Local Example Methods
+
+        private static ThreadLocal<Random> RandomGenerator = 
+            new ThreadLocal<Random>(() =>
+            {
+               return new Random(2);
+            });
+
+        private static void ThreadLocalExample()
+        {
+            Thread t1 = new Thread(() =>
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    Console.WriteLine("t1: {0}", RandomGenerator.Value.Next(10));
+                    Thread.Sleep(500);
+                }
+            });
+
+            Thread t2 = new Thread(() =>
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    Console.WriteLine("t2: {0}", RandomGenerator.Value.Next(10));
+                    Thread.Sleep(500);
+                }
+            });
+
+            t1.Start();
+            t2.Start();
+
+            Console.ReadKey();
+        }
+
+        #endregion
+
+        #region Thread Context Example Methods
+
+        private static void DisplayThread(Thread t)
+        {
+            Console.WriteLine("Name: {0}", t.Name);
+            Console.WriteLine("Culture: {0}", t.CurrentCulture);
+            Console.WriteLine("Priority: {0}", t.Priority);
+            Console.WriteLine("Context: {0}", t.ExecutionContext);
+            Console.WriteLine("IsBackground: {0}", t.IsBackground);
+            Console.WriteLine("IsPool: {0}", t.IsThreadPoolThread);
+        }
+
+        private static void ThreadContextExample()
+        {
+            Thread.CurrentThread.Name = "Main Method";
+            DisplayThread(Thread.CurrentThread);
+        }
+
+        #endregion
+
+        #region Thread Pool Example Methods
+
+        private static void DoWork(object state)
+        {
+            Console.WriteLine("Doing work: {0}", state);
+            Thread.Sleep(500);
+            Console.WriteLine("Work finished: {0}", state);
+        }
+
+        private static void ThreadPoolExample()
+        {
+            for(int i = 0; i < 50; i++)
+            {
+                int stateNumber = i;
+                ThreadPool.QueueUserWorkItem(state => DoWork(stateNumber));
+            }
+            Console.ReadKey();
         }
 
         #endregion

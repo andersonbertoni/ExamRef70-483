@@ -1,0 +1,21 @@
+﻿<Page
+    x:Class="WebPageViewer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WebPageViewer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <TextBlock HorizontalAlignment="Center" Margin="0,57,0,0" Text="Webpage Viewer" FontSize="16"  TextWrapping="Wrap" VerticalAlignment="Top" Width="458" TextAlignment="Center"/>
+        <TextBlock HorizontalAlignment="Left" Margin="359,92,0,0" Text="URL:" FontSize="16" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="URLTextBox" Margin="411,86,374,0" Text="" VerticalAlignment="Top" FontSize="16"/>
+        <Button x:Name="Button" Content="Load Website" HorizontalAlignment="Center" Margin="0,144,0,0" VerticalAlignment="Top" FontSize="16
+                " Click="Button_Click"/>
+        <TextBlock x:Name="ResultTextBlock" Margin="0,197,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Height="427" HorizontalAlignment="Center" Width="738" TextAlignment="Left"/>
+        <TextBlock x:Name="StatusTextBlock" HorizontalAlignment="Center" Margin="0,690,0,0" Text="" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Top" Width="1228"/>
+
+    </Grid>
+</Page>

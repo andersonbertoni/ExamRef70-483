@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,8 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             ThreadSynchronizationUsingJoin = 25,
             ThreadLocal = 26,
             ThreadContext = 27,
-            ThreadPool = 28
+            ThreadPool = 28,
+            UsingBlockingCollection = 35
         }
 
         static void Main(string[] args)
@@ -169,6 +171,9 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                         break;
                     case Items.ThreadPool:
                         ThreadPoolExample();
+                        break;
+                    case Items.UsingBlockingCollection:
+                        UsingBlockingCollectionExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -776,6 +781,43 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                 ThreadPool.QueueUserWorkItem(state => DoWork(stateNumber));
             }
             Console.ReadKey();
+        }
+
+        #endregion
+
+        #region Using Blocking Collection Example Methods
+
+        private static void UsingBlockingCollectionExample()
+        {
+            BlockingCollection<int> data = new BlockingCollection<int>(5);
+
+            Task.Run(() =>
+            {
+                //attempt to add 10 items to the collection - blocks after 5th
+                for (int i = 0; i < 11; i++)
+                {
+                    data.Add(i);
+                    Console.WriteLine("Data {0} added sucessfully", i);
+                }
+
+                //indicate we have no more to add
+                data.CompleteAdding();
+            });
+
+            Console.ReadKey();
+            Console.WriteLine("Reading collection");
+            Task.Run(() =>
+            {
+                while(!data.IsCompleted)
+                {
+                    try
+                    {
+                        int v = data.Take();
+                        Console.WriteLine("Data {0} taken sucessfully", v);
+                    }
+                    catch(InvalidOperationException){ }
+                }
+            });
         }
 
         #endregion

@@ -36,6 +36,9 @@ namespace WebPageViewer
             return await httpClient.GetStringAsync(url);
         }
 
+        /* The method below shows how WhenAll is used, but doesn't necessarily show good programming practice.
+         *  - The order of the items in the returned collection may not fetch the order of submitted site;
+         *  - There is no aggregation of any exceptions;
         private async Task<IEnumerable<string>> FetchWebPages(string[] urls)
         {
             var tasks = new List<Task<string>>();
@@ -46,7 +49,7 @@ namespace WebPageViewer
             }
 
             return await Task.WhenAll(tasks);
-        }
+        } */
 
         /* The act of loading a web page may fail.
          * The FetchWebPage will throw an exception in this situation.

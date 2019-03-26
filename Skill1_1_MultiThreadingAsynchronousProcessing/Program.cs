@@ -42,7 +42,12 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
             ThreadLocal = 26,
             ThreadContext = 27,
             ThreadPool = 28,
-            UsingBlockingCollection = 35
+            UsingBlockingCollection = 35,
+            BlockConcurrentStack = 36,
+            ConcurrentQueue = 37,
+            ConcurrentStack = 38,
+            ConcurrentBag = 39,
+            ConcurrentDictionary = 40
         }
 
         static void Main(string[] args)
@@ -174,6 +179,21 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                         break;
                     case Items.UsingBlockingCollection:
                         UsingBlockingCollectionExample();
+                        break;
+                    case Items.BlockConcurrentStack:
+                        BlockConcurrentStackExample();
+                        break;
+                    case Items.ConcurrentQueue:
+                        ConcurrentQueueExample();
+                        break;
+                    case Items.ConcurrentStack:
+                        ConcurrentStackExample();
+                        break;
+                    case Items.ConcurrentBag:
+                        ConcurrentBagExample();
+                        break;
+                    case Items.ConcurrentDictionary:
+                        ConcurrentDictionaryExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -818,6 +838,125 @@ namespace Skill1_1_MultiThreadingAsynchronousProcessing
                     catch(InvalidOperationException){ }
                 }
             });
+        }
+
+        #endregion
+
+        #region Block Concurrent Stack Example Methods
+
+        private static void BlockConcurrentStackExample()
+        {
+            BlockingCollection<int> data = new BlockingCollection<int>(new ConcurrentStack<int>(), 5);
+
+            Task.Run(() =>
+            {
+                //attempt to add 10 items to the collection - blocks after 5th
+                for (int i = 0; i < 11; i++)
+                {
+                    data.Add(i);
+                    Console.WriteLine("Data {0} added sucessfully", i);
+                }
+
+                //indicate we have no more to add
+                data.CompleteAdding();
+            });
+
+            Console.ReadKey();
+            Console.WriteLine("Reading collection");
+            Task.Run(() =>
+            {
+                while (!data.IsCompleted)
+                {
+                    try
+                    {
+                        int v = data.Take();
+                        Console.WriteLine("Data {0} taken sucessfully", v);
+                    }
+                    catch (InvalidOperationException) { }
+                }
+            });
+
+        }
+
+        #endregion
+
+        #region Concurrent Queue Example Methods
+
+        private static void ConcurrentQueueExample()
+        {
+            ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+            queue.Enqueue("Rob");
+            queue.Enqueue("Miles");
+
+            string str;
+
+            if (queue.TryPeek(out str))
+                Console.WriteLine("Peek: {0}", str);
+
+            if (queue.TryDequeue(out str))
+                Console.WriteLine("Dequeue: {0}", str);
+        }
+
+        #endregion
+
+        #region Concurrent Stack Example Methods
+
+        private static void ConcurrentStackExample()
+        {
+            ConcurrentStack<string> stack = new ConcurrentStack<string>();
+            stack.Push("Rob");
+            stack.Push("Miles");
+
+            string str;
+
+            if (stack.TryPeek(out str))
+                Console.WriteLine("Peek: {0}", str);
+
+            if (stack.TryPop(out str))
+                Console.WriteLine("Pop: {0}", str);
+        }
+
+        #endregion
+
+        #region Concurrent Bag Example Methods
+
+        private static void ConcurrentBagExample()
+        {
+            ConcurrentBag<string> bag = new ConcurrentBag<string>();
+            bag.Add("Rob");
+            bag.Add("Miles");
+            bag.Add("Hull");
+
+            string str;
+            if (bag.TryPeek(out str))
+                Console.WriteLine("Peek: {0}", str);
+
+            if (bag.TryTake(out str))
+                Console.WriteLine("Take: {0}", str);
+        }
+
+        #endregion
+
+        #region Concurrent Dictionary Example Methods
+
+        private static void ConcurrentDictionaryExample()
+        {
+            ConcurrentDictionary<string, int> ages = new ConcurrentDictionary<string, int>();
+            if (ages.TryAdd("Rob", 21))
+                Console.WriteLine("Rob added successfully");
+
+            Console.WriteLine("Rob's age: {0}", ages["Rob"]);
+
+            //Set Rob's age to 22 if it is 21
+            if (ages.TryUpdate("Rob", 22, 21))
+                Console.WriteLine("Age updated successfully");
+
+            Console.WriteLine("Rob's new age: {0}", ages["Rob"]);
+
+            //Increment Rob's age atomically using factory method
+            Console.WriteLine("Rob's age updated to: {0}", ages.AddOrUpdate("Rob", 1, (name, age) => age = age + 1));
+
+            Console.WriteLine("Rob's new age: {0}", ages["Rob"]);
         }
 
         #endregion

@@ -19,7 +19,8 @@ namespace Skill1_3_ImplementProgramFlow
             IterateWithForeach = 5,
             UppercasePerson = 6,
             UsingBreak = 7,
-            UsingContinue = 8
+            UsingContinue = 8,
+            IfConstruction = 9
         }
         static void Main(string[] args)
         {
@@ -87,6 +88,9 @@ namespace Skill1_3_ImplementProgramFlow
                         break;
                     case Items.UsingContinue:
                         UsingContinueExample();
+                        break;
+                    case Items.IfConstruction:
+                        IfConstructionExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -301,6 +305,51 @@ namespace Skill1_3_ImplementProgramFlow
                     continue;
 
                 Console.WriteLine(names[index]);
+            }
+        }
+
+        #endregion
+
+        #region If Construction Example Method
+
+        private static void IfConstructionExample()
+        {
+            if(true)
+            {
+                Console.WriteLine("This statement is always performed");
+            }
+            else
+            {
+                Console.WriteLine("This statement is never performed");
+            }
+
+            //it is possible to "nest" if constructions inside one another
+            if (true)
+            {
+                Console.WriteLine("This statement is always performed");
+                if (true)
+                {
+                    Console.WriteLine("This statement is always performed");
+                }
+                else
+                {
+                    Console.WriteLine("This statement is never performed");
+                }
+            }
+
+            //The else binds to the "nearest" if. If you want to modify this binding you
+            //can use braces to force different bindings.
+            if (true)
+            {
+                Console.WriteLine("This statement is always performed");
+                if (true)
+                {
+                    Console.WriteLine("This statement is always performed");
+                }
+            }
+            else
+            {
+                Console.WriteLine("This statement is never performed");
             }
         }
 

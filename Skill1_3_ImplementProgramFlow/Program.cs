@@ -20,7 +20,11 @@ namespace Skill1_3_ImplementProgramFlow
             UppercasePerson = 6,
             UsingBreak = 7,
             UsingContinue = 8,
-            IfConstruction = 9
+            IfConstruction = 9,
+            LogicalExpressions = 10,
+            SwitchConstruction = 11,
+            SwitchingOnStrings = 12,
+            ExpressionEvaluation = 13
         }
         static void Main(string[] args)
         {
@@ -92,6 +96,18 @@ namespace Skill1_3_ImplementProgramFlow
                     case Items.IfConstruction:
                         IfConstructionExample();
                         break;
+                    case Items.LogicalExpressions:
+                        LogicalExpressionsExample();
+                        break;
+                    case Items.SwitchConstruction:
+                        SwitchConstructionExample();
+                        break;
+                    case Items.SwitchingOnStrings:
+                        SwitchingOnStringsExample();
+                        break;
+                    case Items.ExpressionEvaluation:
+                        ExpressionEvaluationExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -104,7 +120,7 @@ namespace Skill1_3_ImplementProgramFlow
                 }
             }
         }
-
+        
         #region Variables
 
         static int counter;
@@ -351,6 +367,128 @@ namespace Skill1_3_ImplementProgramFlow
             {
                 Console.WriteLine("This statement is never performed");
             }
+        }
+
+        #endregion
+
+        #region Logical Expression Example Methods
+
+        static int mOne()
+        {
+            Console.WriteLine("mOne called");
+            return 1;
+        }
+
+        static int mTwo()
+        {
+            Console.WriteLine("mTwo called");
+            return 2;
+        }
+        
+        private static void LogicalExpressionsExample()
+        {
+            /* The program only outputs a message from mOne.
+             * This is because the condition involving the value 
+             * returned by mOne evaluates to false, which means
+             * there is no need to call mTwo. */
+            if(mOne() == 2 && mTwo() == 1)
+            {
+                Console.WriteLine("Hello World");
+            }
+
+            /* The program only outputs a message from mOne.
+             * This is because the condition involving the value 
+             * return by mOne evaluates to true, which means
+             * there is no need to call mTwo.
+             * The program also outputs Hello World, because the
+             * condition evaluates to true. */            
+            if(mOne() == 1 || mTwo() == 2)
+            {
+                Console.WriteLine("Hello World");
+            }
+        }
+
+        #endregion
+
+        #region Switch Construction Example Method
+
+        private static void SwitchConstructionExample()
+        {
+            Console.Write("Enter command: ");
+            int command = int.Parse(Console.ReadLine());
+
+            switch(command)
+            {
+                case 1:
+                    Console.WriteLine("Command 1 chosen");
+                    break;
+                case 2:
+                    Console.WriteLine("Command 2 chosen");
+                    break;
+                case 3:
+                    Console.WriteLine("Command 3 chosen");
+                    break;
+                default:
+                    Console.WriteLine("Please enter a command in the range 1-3");
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Switching On Strings Example Method
+
+        private static void SwitchingOnStringsExample()
+        {
+            Console.Write("Enter command: ");
+            string commandName = Console.ReadLine().ToLower();
+
+            switch(commandName)
+            {
+                case "save":
+                case "s":
+                    Console.WriteLine("Save command");
+                    break;
+                case "load":
+                case "l":
+                    Console.WriteLine("Load command");
+                    break;
+                case "exit":
+                case "e":
+                    Console.WriteLine("Exit command");
+                    break;
+                default:
+                    Console.WriteLine("Please enter save, load or exit");
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Expression Evaluation Example Method
+
+        private static void ExpressionEvaluationExample()
+        {
+            int i = 0; //create i and set to 0
+            //Monadic operators - one operand
+            i++; //monadic ++ operator increment - i now 1
+            i--; //monadic -- operator decrement - i now 0
+
+            //Postfix monadic operator - perform after value given
+            Console.WriteLine(i++); //writes 0 and sets i to 1
+            //Prefix monadic operator - perform before value given
+            Console.WriteLine(++i); //writes 2 and sets i to 2
+
+            //Binary operators - two operands
+            i = 1 + 1; //sets i to 2
+            i = 1 + 2 * 3; //sets i to 7 because * performed first
+            i = (1 + 2) * 3; // sets i to 9 because + performed first
+
+            string str = "";
+            str = str + "Hello"; //performs string addition
+
+            //ternary operators - three operands
+            i = true ? 0 : 1; //sets i to 0 because condition is true
         }
 
         #endregion

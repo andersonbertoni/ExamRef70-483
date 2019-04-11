@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,7 +17,8 @@ namespace Skill1_4_CreateImplementEventsCallbacks
             Unsubscribing = 2,
             EventBasedAlarm = 3,
             EventHandlerAlarm = 4,
-            EventHandlerData = 5
+            EventHandlerData = 5,
+            AggregateExceptions = 6
         }
         static void Main(string[] args)
         {
@@ -76,6 +78,9 @@ namespace Skill1_4_CreateImplementEventsCallbacks
                     case Items.EventHandlerData:
                         EventHandlerDataExample();
                         break;
+                    case Items.AggregateExceptions:
+                        AggregateExceptionsExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -87,8 +92,8 @@ namespace Skill1_4_CreateImplementEventsCallbacks
                     Console.ReadKey();
                 }
             }
-        }
-        
+        }        
+
         #region Classes
 
         class Alarm
@@ -170,6 +175,33 @@ namespace Skill1_4_CreateImplementEventsCallbacks
             public void RaiseAlarm(string location)
             {
                 OnAlarmRaised(this, new AlarmEventArgs(location));
+            }
+        }
+
+        class Alarm5
+        {
+            //Delegate for the alarm event
+            public event EventHandler<AlarmEventArgs> OnAlarmRaised = delegate { };
+
+            //Called to raise an alarm
+            public void RaiseAlarm(string location)
+            {
+                List<Exception> exceptionList = new List<Exception>();
+
+                foreach(Delegate handler in OnAlarmRaised.GetInvocationList())
+                {
+                    try
+                    {
+                        handler.DynamicInvoke(this, new AlarmEventArgs(location));
+                    }
+                    catch (TargetInvocationException e)
+                    {
+                        exceptionList.Add(e.InnerException);                        
+                    }
+                }
+
+                if (exceptionList.Count > 0)
+                    throw new AggregateException(exceptionList);
             }
         }
 
@@ -312,6 +344,49 @@ namespace Skill1_4_CreateImplementEventsCallbacks
             //raise the alarm
             alarm.RaiseAlarm("EventHandlerDataExample");
             Console.WriteLine("Alarm raised");
+        }
+
+        #endregion
+
+        #region Aggregate Exceptions Example Method
+
+        //The subscribers both throw exceptions
+        static void Alarm5Listener1(object source, AlarmEventArgs args)
+        {
+            Console.WriteLine("Alarm5 listener 1 called");
+            Console.WriteLine("Alarm in {0}", args.Location);
+
+            throw new Exception("Bang!");
+        }
+
+        static void Alarm5Listener2(object source, AlarmEventArgs args)
+        {
+            Console.WriteLine("Alarm5 listener 2 called");
+            Console.WriteLine("Alarm in {0}", args.Location);
+
+            throw new Exception("Boom!");
+        }
+
+        //These errors can be caught and dealt with when the event is raised.
+        private static void AggregateExceptionsExample()
+        {
+            try
+            {
+                Alarm5 alarm = new Alarm5();
+
+                //Connect the listener method
+                alarm.OnAlarmRaised += Alarm5Listener1;
+                alarm.OnAlarmRaised += Alarm5Listener2;
+                
+                //raise the alarm
+                alarm.RaiseAlarm("Kitchen");
+                Console.WriteLine("Alarm raised");
+            }
+            catch (AggregateException agg)
+            {
+                foreach (Exception ex in agg.InnerExceptions)
+                    Console.WriteLine(ex.Message);
+            }
         }
 
         #endregion

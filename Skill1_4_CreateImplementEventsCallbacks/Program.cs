@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Skill1_4_CreateImplementEventsCallbacks
@@ -18,7 +19,12 @@ namespace Skill1_4_CreateImplementEventsCallbacks
             EventBasedAlarm = 3,
             EventHandlerAlarm = 4,
             EventHandlerData = 5,
-            AggregateExceptions = 6
+            AggregateExceptions = 6,
+            CreateDelegates = 7,
+            LambdaExpressions = 8,
+            Closures = 9,
+            BuiltInDelegates = 10,
+            LambdaExpressionTask = 11
         }
         static void Main(string[] args)
         {
@@ -81,6 +87,22 @@ namespace Skill1_4_CreateImplementEventsCallbacks
                     case Items.AggregateExceptions:
                         AggregateExceptionsExample();
                         break;
+                    case Items.CreateDelegates:
+                        CreateDelegatesExample();
+                        break;
+                    case Items.LambdaExpressions:
+                        LambdaExpressionsExample();
+                        break;
+                    case Items.Closures:
+                        ClosuresExample();
+                        break;
+                    case Items.BuiltInDelegates:
+                        BuiltInDelegatesExample();
+                        break;
+                    case Items.LambdaExpressionTask:
+                        LambdaExpressionTaskExample();
+                        Thread.Sleep(3000);
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -92,7 +114,7 @@ namespace Skill1_4_CreateImplementEventsCallbacks
                     Console.ReadKey();
                 }
             }
-        }        
+        }
 
         #region Classes
 
@@ -387,6 +409,167 @@ namespace Skill1_4_CreateImplementEventsCallbacks
                 foreach (Exception ex in agg.InnerExceptions)
                     Console.WriteLine(ex.Message);
             }
+        }
+
+        #endregion
+
+        #region Create Delegates Example Methods and Variable
+
+        delegate int IntOperation(int a, int b);
+
+        static int Add(int a, int b)
+        {
+            Console.WriteLine("Add called");
+            return a + b;
+        }
+
+        static int Subtract(int a, int b)
+        {
+            Console.WriteLine("Subtract called");
+            return a - b;
+        }
+
+        private static void CreateDelegatesExample()
+        {
+            //Explicitly create the delegate
+            /* The op variable is made to refer first 
+             * to a method called Add */
+            IntOperation op = new IntOperation(Add);
+            Console.WriteLine(op(2, 2));
+
+            //Delegate is crated automatically from method
+            /* Then the op variable is made to refer to a method
+             * called Subtract */            
+            op = Subtract;
+
+            /* Each time that op is called it will execute the 
+             * method that it has been made to refer to */
+            Console.WriteLine(op(2, 2));
+        }
+
+        #endregion
+
+        #region Lambda Expressions Method
+
+        private static void LambdaExpressionsExample()
+        {
+            /* The operator => is called lambda operator.
+             * The items a and b on the left of the lambda expression are mapped onto 
+             * method parameters defined by the delegate.
+             * Lambda expressions can accept multiple parameters and contain multiple 
+             * statements in which case the statements are enclosed in a block.
+             * When describing the behavior of the lambda expression you can use the 
+             * phrase "goes into" to describe what is happening. In this case you 
+             * could say "a and b go into a plus b" */
+            IntOperation add = (a, b) =>
+            {
+                Console.WriteLine("Add called");
+                return a + b;
+            };
+
+            Console.WriteLine(add(2, 2));
+        }
+
+        #endregion
+
+        #region Closures Example Methods and Variables
+
+        delegate int GetValue();
+
+        static GetValue getLocalInt;
+
+        /* The method SetLocalInt declares a local variable called localInt
+         * and sets its value to 99. Under normal circunstances the variable
+         * localInt would be destroyed upon completion of the SetLocalInt method.
+         * However, the localInt variable is used in a lambda expression, which 
+         * is assigned to the delegate getLocalInt. The compiler makes sure that
+         * the localInt variable is available for use in the lambda expression
+         * when it is subsequently called from the ClosuresExample method. This
+         * extension of variable life is called a closure. */
+        static void SetLocalInt()
+        {
+            //Local variable set to 99
+            int localInt = 99;
+
+            /* Set delegate getLocalInt to returns
+             * the value of localInt */
+
+            getLocalInt = () =>
+            {
+                Console.WriteLine("Tipo da variável: {0} - Nome da variável: {1}", localInt.GetType().Name, nameof(localInt));
+                return localInt;
+            };
+        }
+
+        private static void ClosuresExample()
+        {
+            SetLocalInt();
+            Console.WriteLine("Value of localInt = {0}", getLocalInt());
+        }
+
+        #endregion
+
+        #region Built In Delegates Example Methods
+
+        /* The Func types provide a range of delegates for 
+         * methods that accept values and return results.
+         * The example above, creates an add behavior that 
+         * has the same return type and parameters as the 
+         * IntOperation delegate in CreateDelegatesExample
+         * The add method accept two integers and returns 
+         * an integer as the result */
+        static Func<int, int, int> add = (a, b) => a + b;
+
+        /* If the lambda expression doesn't return a result, you can
+         * use the Action type. The statement below creates a delegate
+         * called logMessage that refers to a lambda expression that
+         * accepts a string and then prints it to the console. */
+        static Action<string> logMessage = (message) => Console.WriteLine(message);
+
+        /* The Predicate built in delegate type lets you create
+         * code that takes a value of a particular type and returns
+         * true or false. The dividesByThree predicate below returns
+         * true if the value is divisible by 3. */
+        static Predicate<int> dividesByThree = (i) => i % 3 == 0;
+
+        private static void BuiltInDelegatesExample()
+        {
+            //testing add delegate
+            Console.WriteLine(add(1, 2));
+
+            //testing logMessage delegate
+            logMessage("Logging a message");
+
+            //testing dividesByThree delegate
+            Console.WriteLine(dividesByThree(9));
+        }
+
+        #endregion
+
+        #region Lambda Expression Task Example Method
+
+        /* A lambda expression can be used directly in a 
+         * context where you just want to express a particular
+         * behavior. The program below uses Task.Run to start
+         * a new task. The code performed by the task is 
+         * expressed directly as a lambda expression, which is 
+         * given as an argument to the Task.Run method. At no 
+         * point does this code ever have a name. 
+         * A lambda expression used in this way can be described
+         * as an anonymous method; because it is a piece of 
+         * functional code that doesn't have a name. */
+        private static void LambdaExpressionTaskExample()
+        {
+            Task.Run(() =>
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    Console.WriteLine(i);
+                    Thread.Sleep(500);
+                }
+            });
+
+            Console.WriteLine("Task running...");
         }
 
         #endregion

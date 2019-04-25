@@ -15,7 +15,9 @@ namespace Skill1_5_ImplementExceptionHandling
             TryCatch = 1,
             ExceptionObject = 2,
             ExceptionsTypes = 3,
-            FinallyBlock = 4
+            FinallyBlock = 4,
+            ThrowingException = 5,
+            RethrowingException = 6 
         }
 
         static void Main(string[] args)
@@ -73,6 +75,12 @@ namespace Skill1_5_ImplementExceptionHandling
                     case Items.FinallyBlock:
                         FinallyBlockExample();
                         break;
+                    case Items.ThrowingException:
+                        ThrowingExceptionExample();
+                        break;
+                    case Items.RethrowingException:
+                        RethrowingExceptionExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -85,7 +93,7 @@ namespace Skill1_5_ImplementExceptionHandling
                 }
             }
         }
-
+        
         #region Try Catch Example Method
 
         private static void TryCatchExample()
@@ -228,6 +236,76 @@ namespace Skill1_5_ImplementExceptionHandling
             {
                 Console.WriteLine("Thanks for using my program.");
             }
+        }
+
+        #endregion
+
+        #region Throwing Exception Example Method
+
+        private static void ThrowingExceptionExample()
+        {
+            try
+            {
+                /* A program can create and throw its own exceptions by using the throw statement
+                 * to throw an exception instance. The Exception object constructor accepts a 
+                 * string that is used to deliver a descriptive message to the exception handler.
+                 * The example below throws an exception ... */
+                throw new Exception("I think you should know that I'm feeling very depressed.");
+            }
+            /* ... and catches it, displaying the message. */
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region Rethrowing Exception Methods
+        
+        private static int CalledMethod()
+        {
+            try
+            {
+                int number = 0;
+                Console.Write("Enter a number: ");
+                number = int.Parse(Console.ReadLine());
+
+                return 1 / number;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred in CalledMethod: {0}", ex.Message);
+                /* An error can be rethrown by using the keyword throw with no parameter.
+                 * You might think that when re-throwing an exception, you should give 
+                 * the exception object to be re-thrown, as shown here:
+                 * 
+                 * throw ex;
+                 * 
+                 * This is bad practice because it will remove the stack trace information
+                 * that is part of the original exception and replace it with stack trace 
+                 * information that describes the position reached in the exception handler
+                 * code. This will make it harder to work out what is going on when the error
+                 * occurs, because the location of the error will be reported as being in 
+                 * your handler, rather than the point at which the original exception was
+                 * generated. */
+                throw;
+            }
+        }
+        
+        private static void RethrowingExceptionExample()
+        {
+            try
+            {
+                int number = CalledMethod();
+
+                Console.WriteLine("The number is {0}", number);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: {0}", ex.Message);
+                Console.WriteLine("Stack Trace: {0}", ex.StackTrace);                
+            }            
         }
 
         #endregion

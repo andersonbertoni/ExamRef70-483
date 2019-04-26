@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,9 @@ namespace Skill1_5_ImplementExceptionHandling
             RethrowingException = 6,
             InnerException = 7,
             CustomExceptions = 8,
-            ConditionalClauses = 9
+            ConditionalClauses = 9,
+            HandlingInnerExceptions = 10,
+            AggregateExceptions = 11
         }
 
         static void Main(string[] args)
@@ -93,6 +96,12 @@ namespace Skill1_5_ImplementExceptionHandling
                     case Items.ConditionalClauses:
                         ConditionalClausesExample();
                         break;
+                    case Items.HandlingInnerExceptions:
+                        HandlingInnerExceptionsExample();
+                        break;
+                    case Items.AggregateExceptions:
+                        AggregateExceptionsExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -105,7 +114,7 @@ namespace Skill1_5_ImplementExceptionHandling
                 }
             }
         }
-
+        
         #region Class
 
         /* The name of the exception class should end with "Exception" */
@@ -426,6 +435,79 @@ namespace Skill1_5_ImplementExceptionHandling
             catch (CalcException ce) when (ce.Error == CalcException.CalcErrorCodes.DivideByZero)
             {
                 Console.WriteLine("Divide by zero error");
+            }
+        }
+
+        #endregion
+
+        #region Handling Inner Exceptions Example Method
+
+        /* The program below contains an exception handler that throws
+         * a new exception containing an inner exception that describes
+         * the error. If the user enters text that cannot be parsed into
+         * an integer, an exception is thrown that is caught, and then a 
+         * new exception is raised with the error "Calculator Failure".
+         * The new exception contains the original exception as an inner
+         * exception. */
+        private static void HandlingInnerExceptionsExample()
+        {
+            try
+            {
+                try
+                {
+                    Console.Write("Enter an integer: ");
+                    string numberText = Console.ReadLine();
+
+                    int result;
+                    result = int.Parse(numberText);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Calculator failure", ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.InnerException.Message);
+                Console.WriteLine(ex.InnerException.StackTrace);
+            }
+        }
+
+        #endregion
+
+        #region Aggregate Exceptions Example Methods
+
+        private async static Task<string> FetchWebPage(string url)
+        {
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
+            return await response.Content.ReadAsStringAsync();
+        }
+                
+        private static void AggregateExceptionsExample()
+        {
+            try
+            {
+                /* Shows a situation in which aggregate exceptions 
+                 * are used to deliver results from a method that
+                 * is called to read the text from a web page. */
+                Console.Write("Informe uma URL: ");
+                string url = Console.ReadLine();
+
+                if (!url.Contains("http://"))
+                    url = "http://" + url;
+
+                Task<string> getPage = FetchWebPage(url);
+                getPage.Wait();
+                Console.WriteLine(getPage.Result);
+            }
+            catch (AggregateException ag)
+            {
+                /* The AggregateException is caught and the message
+                 * from each exception is displayed */
+                foreach (Exception e in ag.InnerExceptions)
+                    Console.WriteLine(e.Message);
             }
         }
 

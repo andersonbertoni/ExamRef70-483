@@ -17,7 +17,10 @@ namespace Skill1_5_ImplementExceptionHandling
             ExceptionsTypes = 3,
             FinallyBlock = 4,
             ThrowingException = 5,
-            RethrowingException = 6 
+            RethrowingException = 6,
+            InnerException = 7,
+            CustomExceptions = 8,
+            ConditionalClauses = 9
         }
 
         static void Main(string[] args)
@@ -81,6 +84,15 @@ namespace Skill1_5_ImplementExceptionHandling
                     case Items.RethrowingException:
                         RethrowingExceptionExample();
                         break;
+                    case Items.InnerException:
+                        InnerExceptionExample();
+                        break;
+                    case Items.CustomExceptions:
+                        CustomExceptionsExample();
+                        break;
+                    case Items.ConditionalClauses:
+                        ConditionalClausesExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -93,7 +105,32 @@ namespace Skill1_5_ImplementExceptionHandling
                 }
             }
         }
-        
+
+        #region Class
+
+        /* The name of the exception class should end with "Exception" */
+        private class CalcException : Exception
+        {
+            /* The CalcException class contains an error code value
+             * that is set when the exception is constructed */
+            public enum CalcErrorCodes
+            {
+                InvalidNumberText,
+                DivideByZero
+            }
+
+            public CalcErrorCodes Error { get; set; }
+
+            /* The error code value is set when the exception is constructed */
+            public CalcException(string message, CalcErrorCodes error)
+                : base(message)
+            {
+                Error = error;
+            }
+        }
+
+        #endregion
+
         #region Try Catch Example Method
 
         private static void TryCatchExample()
@@ -306,6 +343,90 @@ namespace Skill1_5_ImplementExceptionHandling
                 Console.WriteLine("An error occurred: {0}", ex.Message);
                 Console.WriteLine("Stack Trace: {0}", ex.StackTrace);                
             }            
+        }
+
+        #endregion
+
+        #region Inner Exception Example Methods
+        
+        private static int CalledMethod2()
+        {
+            try
+            {
+                int number = 0;
+                Console.Write("Enter a number: ");
+                number = int.Parse(Console.ReadLine());
+
+                return 1 / number;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred in CalledMethod: {0}", ex.Message);
+
+                /* The Exception class contains an InnerException property that can be set when 
+                 * exception is constructed. The constructor for the newly created exception is
+                 * given a reference to the original exception. */
+                throw new Exception("Something bad happened", ex);
+            }
+        }
+
+        private static void InnerExceptionExample()
+        {
+            try
+            {
+                int number = CalledMethod2();
+
+                Console.WriteLine("The number is {0}", number);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: {0}", ex.Message);
+
+                if (ex.InnerException != null)
+                    Console.WriteLine("Inner Exception Message: {0}", ex.InnerException.Message);
+            }
+        }
+
+        #endregion
+
+        #region Custom Exceptions Example Methods        
+
+        private static void CustomExceptionsExample()
+        {
+            try
+            {
+                throw new CalcException("Calc failed", CalcException.CalcErrorCodes.InvalidNumberText);
+            }
+            catch (CalcException ce)
+            {
+                /* The error code can then be used in the exception handler */
+                Console.WriteLine("Error: {0}", ce.Error);
+            }
+        }
+
+        #endregion
+
+        #region Conditional Clauses Example Method
+        
+        private static void ConditionalClausesExample()
+        {
+            try
+            {
+                //throw new CalcException("Calc failed", CalcException.CalcErrorCodes.DivideByZero);
+
+                /* If the error value in the throw statement is changed from DivideByZero to 
+                 * InvalidNumberText, the program will fail with an unhandled exception */
+                throw new CalcException("Calc failed", CalcException.CalcErrorCodes.InvalidNumberText);
+            }
+            /* the when keyword is followed by a conditional clause that performs a test on the exception 
+             * object. The exception handler will only trigger in the event of an exception being thrown
+             * that has an Error property set to DivideByZero. And exception with any other error code is
+             * ignored, and in the case of the example program, will cause the program to terminate
+             * immediately as an unhandled exception has been thrown. */
+            catch (CalcException ce) when (ce.Error == CalcException.CalcErrorCodes.DivideByZero)
+            {
+                Console.WriteLine("Divide by zero error");
+            }
         }
 
         #endregion

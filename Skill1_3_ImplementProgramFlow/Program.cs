@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,37 +35,15 @@ namespace Skill1_3_ImplementProgramFlow
             {
                 Items item = Items.None;
 
-                int i = -1;
+                int i = ConsoleFunctions.ShowMenuOptions<Items>();
 
-                while (i < 0)
+                if (i == 99)
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("--------------------------");
-                    Console.WriteLine("Exam Ref 70-483 - Examples");
-                    Console.WriteLine("--------------------------");
-
-                    foreach (var j in Enum.GetValues(typeof(Items)))
-                    {
-                        if (Convert.ToInt32(j) > 0)
-                        {
-                            Console.WriteLine("{0} - {1};", Convert.ToInt32(Enum.Parse(typeof(Items), j.ToString())),
-                                                            Enum.GetName(typeof(Items), j));
-                        }
-                    }
-
-                    Console.WriteLine("S - Sair");
-
-                    string valor = Console.ReadLine().ToLower();
-
-                    if (valor == "s")
-                    {
-                        item = Items.Sair;
-                        i = 99;
-                    }
-                    else if (int.TryParse(valor, out i))
-                    {
-                        item = (Items)Enum.Parse(typeof(Items), valor);
-                    }
+                    item = Items.Sair;
+                }
+                else
+                {
+                    item = (Items)Enum.Parse(typeof(Items), i.ToString());
                 }
 
                 switch (item)

@@ -17,7 +17,16 @@ namespace Skill2_1_CreateTypes
             CreatingAStructure = 2,
             CreatingAnEnum = 3,
             CreatingAReference = 4,
-            UsingGenericTypes = 5
+            UsingGenericTypes = 5,
+            Constructors = 6,
+            OverloadedConstructors = 7,
+            CallingConstructors = 8,
+            StaticConstructors = 9,
+            StaticVariables = 10,
+            SimpleMethod = 11,
+            ExtensionMethods = 12,
+            NamedParameters = 13,
+            OptionalParameters = 14
         }
 
         static void Main(string[] args)
@@ -56,6 +65,33 @@ namespace Skill2_1_CreateTypes
                     case Items.UsingGenericTypes:
                         UsingGenericTypesExample();
                         break;
+                    case Items.Constructors:
+                        ConstructorsExample();
+                        break;
+                    case Items.OverloadedConstructors:
+                        OverloadedConstructorsExample();
+                        break;
+                    case Items.CallingConstructors:
+                        CallingConstructorsExample();
+                        break;
+                    case Items.StaticConstructors:
+                        StaticConstructorsExample();
+                        break;
+                    case Items.StaticVariables:
+                        StaticVariablesExample();
+                        break;
+                    case Items.SimpleMethod:
+                        SimpleMethodExample();
+                        break;
+                    case Items.ExtensionMethods:
+                        ExtensionMethodsExample();
+                        break;
+                    case Items.NamedParameters:
+                        NamedParametersExample();
+                        break;
+                    case Items.OptionalParameters:
+                        OptionalParametersExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -67,8 +103,8 @@ namespace Skill2_1_CreateTypes
                     Console.ReadKey();
                 }
             }
-        }
-        
+        }      
+
         #region Classes, Structs and Variables
 
         struct StructStore
@@ -162,6 +198,229 @@ namespace Skill2_1_CreateTypes
                 return items[stackTop];
             }
         }
+
+        class AlienCons
+        {
+            public int X;
+            public int Y;
+            public int Lives;
+
+            /* A constructor has the same name as the object it is part of but does not have a return type */
+            public AlienCons(int x, int y)
+            {
+                /* Constructors can perform validation of their parameters to ensure that any objects that are created contain
+                 * valid information. If the validation fails, the constructor must throw an exception to prevent the creation
+                 * of an invalid object.
+                 * The code below throws an exception if an attempt is made to create an AlienCons with negative coordinate
+                 * values */
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+
+                X = x;
+                Y = y;
+                Lives = 3;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
+            }
+        }
+
+        /* The class below allows an alien to be constructed with a particular number of lives, or a value of three lives, 
+         * depending on which constructor is called */
+        class AlienOC
+        {
+            public int X;
+            public int Y;
+            public int Lives;
+
+            public AlienOC(int x, int y)
+            {
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+
+                X = x;
+                Y = y;
+                Lives = 3;
+            }
+
+            public AlienOC(int x, int y, int lives)
+            {                
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+
+                X = x;
+                Y = y;
+                Lives = lives;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
+            }
+        }
+
+        /* A program can avoid code repetition by making one constructor call another constructor by use 
+         * of the keyword this. It forms a call of another constructor in the object. In the program below
+         * the parameters to the call of one constructor are passed into a call of another, along with an
+         * additional lives value. Note that this means the actual body of the constructor is empty, because
+         * all of the work is performed by the call to the other constructor. 
+         * When creating objects that are part of a class hierarchy, a programmer must ensure that information
+         * required by the constructor of a parent object is passed into a parent constructor. */
+        class AlienOC2
+        {
+            public int X;
+            public int Y;
+            public int Lives;
+
+            public AlienOC2(int x, int y) : this(x, y, 3)
+            {
+            }
+
+            public AlienOC2(int x, int y, int lives)
+            {
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+
+                X = x;
+                Y = y;
+                Lives = lives;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
+            }
+        }
+
+        class AlienSC
+        {
+            public int X;
+            public int Y;
+            public int Lives;
+
+            /* A class can contain a static constructor method. This is called once before the creation of the very first 
+             * instance of the class. The code below contains is a static constructor that prints a message whe it is 
+             * called. When the programs runs, the message is printed once, before the first alien is created. The static
+             * constructor is not called when the second alien is created. */
+            static AlienSC()
+            {
+                Console.WriteLine("Static AlienSC constructor running");
+            }
+
+            public AlienSC(int x, int y) : this(x, y, 3)
+            {
+            }
+
+            public AlienSC(int x, int y, int lives)
+            {
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+
+                X = x;
+                Y = y;
+                Lives = lives;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
+            }
+        }
+
+        class AlienML
+        {
+            /* A static variable is a member of a type, but is not created for each instance of a type. A variable in a class is
+             * made static by using the keyword static in the declaration of that variable.
+             * The variable below is used to set a maximum for the number of lives that an alien is allowed to have. This is a 
+             * value that should be stored once for all aliens. */
+            public static int Max_Lives = 99;
+
+            public int X;
+            public int Y;
+            public int Lives;
+                        
+            public AlienML(int x, int y) : this(x, y, 3)
+            {
+            }
+
+            public AlienML(int x, int y, int lives)
+            {
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+
+                /* The static variable is used in the constructor to reject any attempts to create aliens with too many lives. */
+                if (lives > Max_Lives)
+                    throw new ArgumentOutOfRangeException("Invalid lives");
+
+                X = x;
+                Y = y;
+                Lives = lives;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
+            }
+        }
+
+        class AlienMethod
+        {            
+            public static int Max_Lives = 99;
+
+            public int X;
+            public int Y;
+            public int Lives;
+
+            public AlienMethod(int x, int y) : this(x, y, 3)
+            {
+            }
+
+            public AlienMethod(int x, int y, int lives)
+            {
+                if (x < 0 || y < 0)
+                    throw new ArgumentOutOfRangeException("Invalid position");
+                                
+                if (lives > Max_Lives)
+                    throw new ArgumentOutOfRangeException("Invalid lives");
+
+                X = x;
+                Y = y;
+                Lives = lives;
+            }
+
+            /* A method is a member of a class. It has a signature and a body. The signature defines the type
+             * and number of parameters that the method will accept. The body is a block of code that is performed
+             * when the method is called. If the method has a type other than void, all code paths through the body
+             * of the code must end with a return statement that returns a value of the type of the method. 
+             * The method below is called to remove lives from an alien. The method is provided with a parameter that
+             * gives the number of lives to remove. The method is of type Boolean and returns true if the alien is 
+             * still alive and false if it is not. */
+            public bool RemoveLives(int livesToRemove)
+            {
+                Lives = Lives - livesToRemove;
+
+                /* If the number of lives that are left is less than zero, the lives is set to zero and the alien is 
+                 * moved off the display screen so that it is not visible any more. */
+                if(Lives <= 0)
+                {
+                    Lives = 0;
+                    X = -1000;
+                    Y = -1000;
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            public override string ToString()
+            {
+                return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
+            }
+        }        
 
         #endregion
 
@@ -273,6 +532,231 @@ namespace Skill2_1_CreateTypes
 
             Console.WriteLine(nameStack.Pop());
             Console.WriteLine(nameStack.Pop());
+        }
+
+        #endregion
+
+        #region ConstructorsExample Method
+        
+        private static void ConstructorsExample()
+        {
+            AlienCons x = new AlienCons(100, -100);
+            Console.WriteLine("x {0}", x);
+        }
+
+        #endregion
+
+        #region OverloadedConstructorsExample Method
+
+        private static void OverloadedConstructorsExample()
+        {
+            AlienOC x = new AlienOC(100, 100);
+            AlienOC y = new AlienOC(90, 90, 4);
+
+            Console.WriteLine("x {0}", x);
+            Console.WriteLine("y {0}", y);
+        }
+
+        #endregion
+
+        #region CallingConstructorsExample Method
+
+        private static void CallingConstructorsExample()
+        {
+            AlienOC2 x = new AlienOC2(100, 100);
+            AlienOC2 y = new AlienOC2(90, 90, 4);
+
+            Console.WriteLine("x {0}", x);
+            Console.WriteLine("y {0}", y);
+        }
+
+        #endregion
+
+        #region StaticConstructorsExample Method
+
+        private static void StaticConstructorsExample()
+        {
+            /* The static constructor is called before the first alien is created. */
+            AlienSC x = new AlienSC(100, 100);
+            /* The static constructor is not called when the second alien is created. */
+            AlienSC y = new AlienSC(90, 90, 4);
+                        
+            Console.WriteLine("x {0}", x);
+            Console.WriteLine("y {0}", y);
+        }
+
+        #endregion
+
+        #region StaticVariablesExample Method
+
+        private static void StaticVariablesExample()
+        {
+            try
+            {
+                AlienML x = new AlienML(100, 100);
+                AlienML y = new AlienML(100, 100, 100);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0} - {1}", ex.GetType().ToString(), ex.Message);
+            }
+
+            try
+            {
+                /* Code outside of the AlienML class must refer to the Max_Lives static variable via the class name, 
+                 * rather than the name of any particular instance of the class. The statement next change the value
+                 * of Max_Lives to 150. 
+                 * Making a variable static does not stop it from being changed when the program runs (to achieve this
+                 * use the const keyword or make the variable readonly). Rather, the word static in this context means
+                 * that the variable is "always present". A program can use a static variable from a type without 
+                 * needing to have created any instances of that type. */
+                AlienML.Max_Lives = 150;
+                AlienML z = new AlienML(100, 100, 100);
+
+                Console.WriteLine("z {0}", z);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0} - {1}", ex.GetType().ToString(), ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region SimpleMethodExample Method
+
+        private static void SimpleMethodExample()
+        {
+            AlienMethod x = new AlienMethod(100, 100);
+            Console.WriteLine("x {0}", x);
+
+            /* The name of the method is best expressed in a "verb-noun" manner, with an action followed by the thing 
+             * that the action is acting on. When talking about the method signature and the code body of a method we 
+             * will talk in terms of the parameters used in the method. In the case of the call of a method we will 
+             * talk in terms of the arguments supplied to the call. In other words, the parameter to the method is
+             * called livesToRemove and the argument to the method call is the value 2. */
+            if(x.RemoveLives(4))
+            {
+                Console.WriteLine("Still alive");
+            }
+            else
+            {
+                Console.WriteLine("Alien destroyed");
+            }
+
+            Console.WriteLine("x {0}", x);
+        }
+
+        #endregion
+
+        #region ExtensionMethodsExample Method
+
+        /* The class with the extension method is in the MyExtensions.cs file. */
+        /* Once the extension method has been created it can be used from the namespace in which the class
+         * containing the method is declared. When the programs calls an extension method the compiler 
+         * searches the included namespaces for a matching method for that type, and then generates a call
+         * of that method. When the program below runs, it prints out the number of lines in the string text. */
+        private static void ExtensionMethodsExample()
+        {
+            string text = @"A rocket explorer called Wright, 
+Once travelled much faster than light,
+He set out one day,
+In a relative way,
+And returned on the previous night";
+
+            Console.WriteLine(text.LineCount());
+        }
+
+        #endregion
+
+        #region NamedParametersExample Methods
+
+        /* When you create a method with parameters, the signature of the method gives the name and the type
+         * of each parameter in turn. 
+         * The method below has been defined as having three parameters. A call of the method must have three
+         * argument values: a prompt, a low value, and a high value. */
+        static int ReadValue(int low, int high, string prompt)
+        {
+            while (true)
+            {
+                Console.WriteLine(prompt);
+
+                int number;
+                if (!int.TryParse(Console.ReadLine(), out number))
+                {
+                    Console.WriteLine("Invalid number text");
+                    continue;
+                }
+
+                if(number < low || number > high)
+                {
+                    Console.WriteLine("Number should be less than {0} and greater than {1}", high, low);
+                    continue;
+                }
+
+                return number;
+            }            
+        }
+
+        private static void NamedParametersExample()
+        {
+            // The following call of ReadValue is rejected by the compiler:
+            //int age = ReadValue("Enter your age: ", 1, 100);
+            /* This is because the prompt string is defined as the last parameter to the method call, not the 
+             * first. If you want to make method calls without worrying about the order of the arguments, you
+             * can name each one when you call the method: */
+            int age = ReadValue(prompt: "Enter your age: ", low: 1, high: 100);
+
+            /* Now the compiler is using the name of each argument, rather than its position in the list. 
+             * Another programmer reading your code can now see the meaning of each argument value. Using
+             * this format also removes the possibility of any confusion of the ordering of the values in 
+             * the method call. */
+
+            Console.WriteLine("Your age is: {0}", age);
+        }
+
+        #endregion
+
+        #region OptionalParametersExample Methods
+
+        /* Sometimes the value of an argument might have a sensible default value. For example, if you only want 
+         * the ReadValue to fetch a value from the user and not display a prompt, you can do this by providing 
+         * an empty string:
+         * 
+         *      x = ReadValue(low: 25, high: 100, prompt: "");
+         *      
+         * This, however, is a bit messy. Instead, you can change the definition of the method to give a default
+         * value for the prompt parameter as shown below. 
+           Optional parameters must be provided after all of the required ones. */
+        static int ReadValue(double low, double high, string prompt = "")
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+
+                int number;
+
+                if (!int.TryParse(Console.ReadLine(), out number))
+                {
+                    Console.WriteLine("Invalid number text");
+                    continue;
+                }
+
+                if (number < low || number > high)
+                {
+                    Console.WriteLine("Number should be less than {0} and greater than {1}", high, low);
+                    continue;
+                }
+                return number;
+            }
+        }
+
+        private static void OptionalParametersExample()
+        {
+            /* When the method runs, the prompt will be set to an empty string if the user doesn't provide 
+             * a value. */
+            int age = ReadValue(1, 100);
+            Console.WriteLine("You entered: {0}", age);
         }
 
         #endregion

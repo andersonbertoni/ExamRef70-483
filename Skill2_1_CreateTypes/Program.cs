@@ -26,7 +26,12 @@ namespace Skill2_1_CreateTypes
             SimpleMethod = 11,
             ExtensionMethods = 12,
             NamedParameters = 13,
-            OptionalParameters = 14
+            OptionalParameters = 14,
+            IndexedProperties = 15,
+            IndexingOnStrings = 16,
+            OverloadedDateTimeConstructor = 17,
+            MethodOverriding = 18,
+            UsingBase = 19
         }
 
         static void Main(string[] args)
@@ -92,6 +97,21 @@ namespace Skill2_1_CreateTypes
                     case Items.OptionalParameters:
                         OptionalParametersExample();
                         break;
+                    case Items.IndexedProperties:
+                        IndexedPropertiesExample();
+                        break;
+                    case Items.IndexingOnStrings:
+                        IndexingOnStringsExample();
+                        break;
+                    case Items.OverloadedDateTimeConstructor:
+                        OverloadedDateTimeConstructorExample();
+                        break;
+                    case Items.MethodOverriding:
+                        MethodOverridingExample();
+                        break;
+                    case Items.UsingBase:
+                        UsingBaseExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -103,7 +123,7 @@ namespace Skill2_1_CreateTypes
                     Console.ReadKey();
                 }
             }
-        }      
+        }
 
         #region Classes, Structs and Variables
 
@@ -421,6 +441,110 @@ namespace Skill2_1_CreateTypes
                 return string.Format("X: {0} Y: {1} Lives: {2}", X, Y, Lives);
             }
         }        
+
+        /* A program can access a particular array element by using an index value that identifies the element. 
+         * A class can use the same indexing mechanism to provide indexed property values. 
+         * The class below is a wrapper around an integer array. The indexer property accepts an integer value
+         * (called i in the class), which is used to index the array that stores the value. */
+        class IntArrayWrapper
+        {
+            //Create an array to store the values
+            private int[] array = new int[100];
+
+            //Declare an indexer property
+            public int this[int i]
+            {
+                get { return array[i]; }
+                set { array[i] = value; }
+            }
+        }
+
+        /* Note that there is nothing stopping the use of other types in indexed properties. This is how the 
+         * Dictionary collection is used to index on a particular type of key. The class below shows an 
+         * indexer property that is extended to allow all of the elements in the integer array to be accessed
+         * by name. */
+        class NamedIntArray
+        {
+            //Create an array to store the values
+            private int[] array = new int[100];
+
+            //Only the first couple of values have been implemented for reasons of space
+            public int this[string name]
+            {
+                get
+                {
+                    switch(name)
+                    {
+                        case "zero":
+                            return array[0];
+                        case "one":
+                            return array[1];
+                        default:
+                            return -1;
+                    }
+                }
+                set
+                {
+                    switch(name)
+                    {
+                        case "zero":
+                            array[0] = value;
+                            break;
+                        case "one":
+                            array[1] = value;
+                            break;
+                    }
+                }
+            }
+        }
+
+        /* The overriding of methods takes place when class hierarchies are used. In a class hierarchy a child 
+         * class is derived from a parent or base class. A method in base class is overridden by a method in a 
+         * child when the child class contains a method with exactly the same name and signature as a method in 
+         * the parent class. Only methods that have been marked as virtual in the parent class can be overridden.
+         * The underlying principle of a class hierarchy is that classes at the top of the hierarchy are more
+         * abstract, and classes toward the bottom of the hierarchy are more specific. The example below, the base
+         * class are called Document and child class are called Invoice. 
+         * The Document class will hold all of the behaviors that are common to all documents, for example, all 
+         * documents must provide a method that gets the date when the document was created. However, the print 
+         * behavior of an Invoice will have to be different from the print behavior of the more abstract Document
+         * type. Overriding allows us to create a print method in the Invoice that overrides that in the Document. */
+        class Document
+        {
+            /* The GetDate method is declared in Document. */
+            //All documents have the same GetDate behavior so this method will not be overriden
+            public void GetDate()
+            {
+                Console.WriteLine("Hello from GetDate in Document");
+            }
+
+            /* The DoPrint is declared in Document and overridden in Invoice. */
+            //A document may have its own DoPrint behavior so this method is virtual so it can be overriden
+            public virtual void DoPrint()
+            {
+                Console.WriteLine("Hello from DoPrint in Document");
+            }
+        }
+
+        class Invoice : Document
+        {
+            public override void DoPrint()
+            {
+                Console.WriteLine("Hello from DoPrint in Invoice");
+            }
+        }
+
+        /* If you create a PrePaidInvoice to represent pre-paid invoices, you can extend the Invoice class and provide
+         * an override of the DoPrint method in the PrePaidInvoice class. The DoPrint method in PrePaidInvoice can use
+         * the DoPrint method in the parent class by using the base keyword. */
+        class PrePaidInvoice : Invoice
+        {
+            public override void DoPrint()
+            {
+                base.DoPrint();
+                Console.WriteLine("Hello from DoPrint in PrePaidInvoice");
+            }
+        }
 
         #endregion
 
@@ -757,6 +881,82 @@ And returned on the previous night";
              * a value. */
             int age = ReadValue(1, 100);
             Console.WriteLine("You entered: {0}", age);
+        }
+
+        #endregion
+
+        #region IndexedPropertiesExample Method
+
+        private static void IndexedPropertiesExample()
+        {
+            IntArrayWrapper x = new IntArrayWrapper();
+            x[0] = 99;
+            Console.WriteLine(x[0]);
+        }
+
+        #endregion
+
+        #region IndexingOnStringsExample Method
+
+        private static void IndexingOnStringsExample()
+        {
+            /* A program can access elements in the array by specifying a text indexer for the location.
+             * This program stores the value 99 in location "zero" */
+            NamedIntArray x = new NamedIntArray();
+            x["zero"] = 99;
+            Console.WriteLine(x["zero"]);
+        }
+
+        #endregion
+
+        #region OverloadedDateTimeConstructorExample Method
+
+        /* Overloading - "providing a method with the same name, but a different signature in a given type".
+         * It is useful when you want to provide several ways of performing a particular behavior, depending
+         * on the circumstances in which the behavior is being used. 
+         * The DateTime structure provided by .NET has a large number of overloaded constructors, because
+         * there are many different ways a programmer might want to initialize a DateTime value.
+         * You might have the number of ticks since January 1, 0001 at 00:00:00.000 in the Gregorian calendar.
+         * Alternatively, and perhaps more likely, you might have year, month, and day values. */
+        private static void OverloadedDateTimeConstructorExample()
+        {            
+            /* This program shows how these values are used to create DateTime values. Both of the DateTime
+             * values are set to the same date and time by this code. */
+            DateTime d0 = new DateTime(ticks: 636679008000000000);           
+            DateTime d1 = new DateTime(year: 2018, month: 7, day: 23);
+         
+            Console.WriteLine(d0);
+            Console.WriteLine(d1);
+        }
+
+        #endregion
+
+        #region MethodOverridingExample Method
+
+        private static void MethodOverridingExample()
+        {
+            /* The program creates an instance of Invoice... */
+            Invoice c = new Invoice();
+
+            /* ... and then calls the GetDate and DoPrint methods on the instance.
+             * When GetDate is called, the GetDate from Document is called. When 
+             * DoPrint is called, the DoPrint from Invoice is called, because this
+             * overrides the DoPrint in the parent class. */
+            c.GetDate();
+            c.DoPrint();
+        }
+
+        #endregion
+
+        #region UsingBaseExample Method
+
+        private static void UsingBaseExample()
+        {
+            PrePaidInvoice p = new PrePaidInvoice();
+            p.GetDate();
+            /* When the DoPrint method is called on an instance of the PrePaidInvoice class, it first
+             * makes a call of the DoPrint method in the parent object. */
+            p.DoPrint();
         }
 
         #endregion

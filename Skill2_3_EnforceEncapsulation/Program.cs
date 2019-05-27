@@ -247,7 +247,16 @@ namespace Skill2_3_EnforceEncapsulation
 
         /* When a class implements an interface it contains methods with signatures that match the ones specified
          * in the interface. You can use an explicit interface implementation to make the methods implementing an
-         * interface only visible when the object is accessed via an interface reference. */
+         * interface only visible when the object is accessed via an interface reference.
+         * Whena class implements an interface it must contain an implementation of all methods that are defined
+         * in the interface. Sometimes a class may implement multiple interfaces, in which case it must contain 
+         * all the methods defined in all the interfaces. This can lead to problems, in that two interfaces might
+         * contain a method with the same name. For example the IPrintable and IDisplay interfaces might both 
+         * specify a method called GetTitle to get the title of a document. The designers of the interfaces will
+         * have added these methods to the interface because a printed page and an on-screen menu might both need
+         * to have titles that need to be displayed. This can lead to confusion when an object implements both
+         * interfaces; either a document or a menu might end up with the incorrect title. The class below shows
+         * how it can contain explicit implementations of both GetTitle methods. */
         class Report : IPrintable, IDisplay
         {
             /* The methods in the IPrintable interface only have meaning when being used by something trying to 

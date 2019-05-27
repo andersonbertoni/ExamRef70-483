@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill2_2_ConsumeTypes", "Sk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill2_3_EnforceEncapsulation", "Skill2_3_EnforceEncapsulation\Skill2_3_EnforceEncapsulation.csproj", "{67D1114D-CE68-47CE-B281-3D626076DFED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill2_4_CreateImplementClassHierarchy", "Skill2_4_CreateImplementClassHierarchy\Skill2_4_CreateImplementClassHierarchy.csproj", "{349C391A-0E39-4DC4-8C95-2C7675465435}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -225,6 +227,22 @@ Global
 		{67D1114D-CE68-47CE-B281-3D626076DFED}.Release|x64.Build.0 = Release|Any CPU
 		{67D1114D-CE68-47CE-B281-3D626076DFED}.Release|x86.ActiveCfg = Release|Any CPU
 		{67D1114D-CE68-47CE-B281-3D626076DFED}.Release|x86.Build.0 = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|ARM.Build.0 = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|x64.Build.0 = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Debug|x86.Build.0 = Debug|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|Any CPU.Build.0 = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|ARM.ActiveCfg = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|ARM.Build.0 = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x64.ActiveCfg = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x64.Build.0 = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x86.ActiveCfg = Release|Any CPU
+		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

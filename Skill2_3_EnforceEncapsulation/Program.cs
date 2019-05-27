@@ -14,7 +14,10 @@ namespace Skill2_3_EnforceEncapsulation
             Sair = -1,
             None = 0,
             PublicDataMembers = 1,
-            UsingAProperty = 2
+            UsingAProperty = 2,
+            CreatingAccessorMethods = 3,
+            ProtectedAccess = 4,
+            PrintingInterface = 5
         }
 
         static void Main(string[] args)
@@ -44,6 +47,15 @@ namespace Skill2_3_EnforceEncapsulation
                     case Items.UsingAProperty:
                         UsingAPropertyExample();
                         break;
+                    case Items.CreatingAccessorMethods:
+                        CreatingAccessorMethodsExample();
+                        break;
+                    case Items.ProtectedAccess:
+                        ProtectedAccessExample();
+                        break;
+                    case Items.PrintingInterface:
+                        PrintingInterfaceExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -57,7 +69,7 @@ namespace Skill2_3_EnforceEncapsulation
             }
         }
 
-        #region Classes
+        #region Classes and Interfaces
 
         class Customer
         {
@@ -74,13 +86,13 @@ namespace Skill2_3_EnforceEncapsulation
              * The Name property can throw an exception when an attempt is made to set an empty string.
              * Do this to ensure that the user of the Customer class is always made aware of any error
              * conditions. You can make the set behavior ignore invalid names, or set the name to a 
-             * default string when an invalid name is provided. */
-             */
+             * default string when an invalid name is provided. */             
             public string Name
             {
                 /* The get behavior is used when a program gets a value in the property.
                  * The get behavior for the Name property returns the value of a private class member
-                 * variable called _nameValue, which holds the value of the name of the customer. */
+                 * variable called _nameValue, which holds the value of the name of the customer. 
+                 * This value is called the backing value of the property. */
                 get
                 {
                     return _nameValue;
@@ -99,6 +111,162 @@ namespace Skill2_3_EnforceEncapsulation
 
                     _nameValue = value;
                 }
+            }
+
+            /* If you just want to implement a class member as a property, but don't want to get control
+             * when the property is accessed, you can use auto-implemented properties. The statement below
+             * creates an integer property called Age. The C# compiler automatically creates the backing
+             * values. If you want to add get and set behaviors and your own backing value later, you can
+             * do this.
+            
+                public int Age { get; set; }
+
+            */
+        }
+
+        /* The class below shows how public and private access modifiers can be used to create a very simple
+         * bank account application that uses methods to provide access to the account balance value. */
+        class BankAccount
+        {
+            /* The member variable _accountBalance is made private to the BankAccount class. This means that
+             * it cannot be accessed by code running outside the BankAccount. */
+            private decimal _accountBalance = 0;
+
+            /* The method members PayInFunds, WithdrawFunds, and GetBalance are declared as public, which 
+             * means that code running outside the BankAccount class can use these methods to interact with
+             * the account balance value in a managed way. */
+            public void PayInFunds(decimal amountToPayIn)
+            {
+                _accountBalance = _accountBalance + amountToPayIn;
+            }
+
+            public bool WithdrawFunds(decimal amountToWithdraw)
+            {
+                if (amountToWithdraw > _accountBalance)
+                    return false;
+
+                _accountBalance = _accountBalance - amountToWithdraw;
+                return true;
+            }
+
+            public decimal GetBalance()
+            {
+                return _accountBalance;
+            }
+        }
+
+        /* Making a member of a class private will prevent code in any external class from having access
+         * to that data member. The protected access modifier makes a class member useable in any classes
+         * that extend the parent (base) class in which the member is declared. The classes below shows an
+         * OverdraftAccount that adds an overdraft facility to the BankAccount2 class. */
+        class BankAccount2
+        {
+            /* The _accountBalance member has the protected access modifier. 
+             * It isn't recommended that you use the protected access modifier to control access to highly
+             * important data members of a class such as a bank balance. Doing this makes it very easy for
+             * a maliciou programmer to gain access to the protected member by extending the parent class.
+             * Tent to use the protected access modifier to limit access to helper methods that have no 
+             * meaningful use outside of the class hierarchy. */
+            protected decimal _accountBalance = 0;
+
+            public void PayInFunds(decimal amountToPayIn)
+            {
+                _accountBalance = _accountBalance + amountToPayIn;
+            }
+
+            public virtual bool WithdrawFunds(decimal amountToWithdraw)
+            {
+                if (amountToWithdraw > _accountBalance)
+                    return false;
+
+                _accountBalance = _accountBalance - amountToWithdraw;
+                return true;
+            }
+
+            public decimal GetBalance()
+            {
+                return _accountBalance;
+            }
+        }
+        
+        class OverdraftAccount : BankAccount2
+        {
+            decimal overdraftLimit = 100;
+
+            /* The OverdraftAccount contains an override of the WithdrawFunds method that
+             * allows the account holder to draw out more than they have in their account, 
+             * up to the limit of their overdraft. This works because the _accountBalance
+             * member of the BankAccount2 class has the protected access modifier. */
+            public override bool WithdrawFunds(decimal amountToWithdraw)
+            {
+                if (amountToWithdraw > _accountBalance + overdraftLimit)
+                    return false;
+
+                _accountBalance = _accountBalance - amountToWithdraw;
+                return true;
+            }
+        }
+
+        /* The code below shows how a BankAccount3 class could contain an Address class that is used to hold
+         * address information for account holders. If this Address class is made protected it can only be used
+         * in the BankAccount3 class and in classes that extend that class. */
+        class BankAccount3
+        {
+            protected class Address
+            {
+                public string FirstLine;
+                public string Postcode;
+            }
+
+            protected decimal accountBalance = 0;
+        }
+
+        /* The class OverdraftAccount2 class can contain a variable of type Address because it is a child of 
+         * BankAccount3. The Overdraft2 account contains a member called GuarantorAddress that gives the address
+         * of the person nominated by the account holder to guarantee the overdraft. */
+        class OverdraftAccount2 : BankAccount3
+        {
+            decimal overdraftLimit = 100;
+
+            Address GuarantorAddress;
+        }
+                
+        /* Consider an IPrintable interface that specifies methods used to print any object. This is a good idea, 
+         * because now a printer can be asked to print any item that is referred to by a reference of IPrintable
+         * type. In other words, any object that implements the methods in IPrintable can be printed. */
+        interface IPrintable
+        {
+            string GetPrintableText(int pageWidth, int pageHeight);
+            string GetTitle();
+        }
+
+        interface IDisplay
+        {
+            string GetTitle();
+        }
+
+        /* When a class implements an interface it contains methods with signatures that match the ones specified
+         * in the interface. You can use an explicit interface implementation to make the methods implementing an
+         * interface only visible when the object is accessed via an interface reference. */
+        class Report : IPrintable, IDisplay
+        {
+            /* The methods in the IPrintable interface only have meaning when being used by something trying to 
+             * print an object. It is not sensible to call the printing methods in any other  context than via the 
+             * IPrintable reference. You can achieve this by making the implementation of the printing methods 
+             * explicit, thus adding the interface name to the declaration of the method body. */
+            string IPrintable.GetPrintableText(int pageWidth, int pageHeight)
+            {
+                return "Report text to be printed";
+            }
+
+            string IPrintable.GetTitle()
+            {
+                return "Report title to be printed";
+            }
+
+            string IDisplay.GetTitle()
+            {
+                return "Report title to be displayed";
             }
         }
 
@@ -146,6 +314,65 @@ namespace Skill2_3_EnforceEncapsulation
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        #endregion
+
+        #region CreatingAccessorMethodsExample Method
+
+        private static void CreatingAccessorMethodsExample()
+        {
+            BankAccount a = new BankAccount();
+            Console.WriteLine("Pay in 50");
+            a.PayInFunds(50);
+
+            if (a.WithdrawFunds(10))
+                Console.WriteLine("Withdraw 10");
+
+            Console.WriteLine("Account balance is: {0}", a.GetBalance());
+
+            /* Making a data member of a class private will stop direct access to that data member.
+             * In other words, the following statement will not compile:
+             * 
+                    a._accountBalance = a._accountBalance + 1000000;
+             *
+             * The cunning attempt to increase the balance of an account by a million is not permitted
+             * by the compiler because the _accountBalance member has been declared as private to the
+             * BankAccount class. */
+        }
+
+        #endregion
+
+        #region ProtectedAccessExample Method
+
+        private static void ProtectedAccessExample()
+        {
+            OverdraftAccount a = new OverdraftAccount();
+            Console.WriteLine("Pay in 50");
+            a.PayInFunds(50);
+
+            if (a.WithdrawFunds(60))
+                Console.WriteLine("Withdraw 60");
+
+            Console.WriteLine("Account balance is: {0}", a.GetBalance());
+        }
+
+        #endregion
+
+        #region PrintingInterfaceExample Method
+
+        private static void PrintingInterfaceExample()
+        {
+            Report myReport = new Report();
+
+            /* Once the methods have been made explicit implementations of the interface, the only way
+             * to access these methods in a Report instance is by a reference of a IPrintable type. */
+            IPrintable printItem = myReport;
+            Console.WriteLine(printItem.GetTitle());
+            Console.WriteLine(printItem.GetPrintableText(80, 23));
+
+            IDisplay displayItem = myReport;
+            Console.WriteLine(displayItem.GetTitle());
         }
 
         #endregion

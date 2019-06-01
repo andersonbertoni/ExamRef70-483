@@ -17,7 +17,8 @@ namespace Skill2_4_CreateImplementClassHierarchy
             IAccountInterface = 2,
             BabyAccount = 3,
             OverridenWithdrawFunds = 4,
-            BaseMethod = 5
+            BaseMethod = 5,
+            BankAccountConstructor = 6
         }
 
         static void Main(string[] args)
@@ -56,6 +57,9 @@ namespace Skill2_4_CreateImplementClassHierarchy
                     case Items.BaseMethod:
                         BaseMethodExample();
                         break;
+                    case Items.BankAccountConstructor:
+                        BankAccountConstructorExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -68,7 +72,7 @@ namespace Skill2_4_CreateImplementClassHierarchy
                 }
             }
         }
-
+        
         #region Classes and Interfaces
 
         /* Consider a printing service that will print objects in an application. You can create an interface 
@@ -224,7 +228,7 @@ namespace Skill2_4_CreateImplementClassHierarchy
              * classes (BankAccount) and customize it to make them more specific (BabyAccount). */
             protected decimal _balance = 0;
 
-            decimal IAccount.GetBalance()
+            public decimal GetBalance()
             {
                 return _balance;
             }
@@ -260,7 +264,7 @@ namespace Skill2_4_CreateImplementClassHierarchy
         /* Overriding replaces a method in a base class with a version that provides the behavior appropriate
          * to a child class. In the case of the BabyAccount3, you want to change the behavior of the one method
          * that you are interested in. You want to replace the WithdrawFunds method with a new one. */
-            public class BabyAccount3: BankAccount2, IAccount
+        public class BabyAccount3: BankAccount2, IAccount
         {
             /* The keyword override means "use this version of the method in preference to the one in the base 
              * class". 
@@ -306,12 +310,165 @@ namespace Skill2_4_CreateImplementClassHierarchy
                      * Note that there are other useful spin-offs here. If I need to fix a bug in the behavior
                      * of the WithdrawFunds method I just fix it once, in the top-level class, and then it 
                      * is fixed for all the classes which call back to it. */
-                     */
+                     
                     return base.WithdrawFunds(amount);
                 }
             }
         }
-        
+
+        public class BabyAccount5: BankAccount2, IAccount
+        {
+            /* C# allows a program to replace a method in a base class
+             * by simply creating a new method in the child class. In 
+             * this situation there is no overriding, you have just
+             * supplied a new version of the method. In fact, the C#
+             * compiler will give you a warning that indicates how you
+             * should provide the keyword new to indicate this. */
+            public new bool WithdrawFunds(decimal amount)
+            {
+                if(amount > 10)
+                {
+                    return false;
+                }
+                if(_balance < amount)
+                {
+                    return false;
+                }
+                _balance = _balance - amount;
+                               
+                return true;
+            }
+            /* Overriding/replacing is not always desirable. Consider the GetBalance
+             * method in the BankAccount class. This is never going to need a replacement.
+             * And yet a malicious programmer can write their own and override or replace
+             * the one in the parent. */
+            public new decimal GetBalance()
+            {
+                return 1000000000;
+                /* This is the banking equivalent of the bottle of beer that is never empty.
+                 * No matter how much cash is drawn out of the account, it always has a
+                 * balance value of a million pounds. What this means is that you need a way
+                 * to mark some methods as not being able to be overridden. C# does this by
+                 * giving us a sealed keyword which means "You can't override this method 
+                 * any more". */
+            }
+        }
+
+        /* You can only seal an overriding method and sealing a method does not prevent a
+         * child class from replacing a method in a parent. However, you can also mark a 
+         * class as sealed. This means that the class cannot be extended, so it cannot be
+         * used as the basis for another class. The BabyAccount6 below cannot be the base
+         * of any other classes. */
+        public sealed class BabyAccount6 : BankAccount2, IAccount
+        {
+
+        }
+
+        public class BankAccount3 : IAccount
+        {
+            private decimal _balance;
+
+            /* A constructor is a method which gets control during the process of object creation.
+             * It is used to allow initial values to be set into an object. You can add a 
+             * constructor to the BankAccount3 class that allows an initial balance to be set
+             * when an account is created.
+             * Unfortunately, adding a constructor like this to a base class in a class hierarchy
+             * has the effect of breaking all the child classes. The reason for this is that 
+             * creating a child class instance involves creating an instance of the base class. */
+            public BankAccount3(decimal initialBalance)
+            {
+                _balance = initialBalance;
+            }
+
+            decimal IAccount.GetBalance()
+            {
+                return _balance;
+            }
+
+            void IAccount.PayInFunds(decimal amount)
+            {
+                _balance = _balance + amount;
+            }
+
+            public virtual bool WithdrawFunds(decimal amount)
+            {
+                if(_balance < amount)
+                {
+                    return false;
+                }
+                _balance = _balance - amount;
+                return true;
+            }
+        }
+
+        /* When the program tries to create a BabyAccount7 it must first create a BankAccount3.
+         * Creating a BankAccount3 involves the use of its constructor to set the initial 
+         * balance of the BankAccount3. The BabyAccount7 class must contain a constructor that
+         * calls the constructor in the parent object to set that up. */
+        public class BabyAccount7 : BankAccount3, IAccount
+        {
+            /* The code below shows how this would work. The constructor for the BabyAccount7
+             * makes a call of the constructor for the base class and passes the initial
+             * balance into that constructor.
+             * In previous examples we discussed the use of the keyword this when writing
+             * constructors. We saw that the keyword is used to allow a constructor in a class
+             * to call other constructors in that class. The base keyword in this context is
+             * analogous to the this keyword, except that the constructor is in the base class.
+             * Note that in this case, the actual constructor body for the BabyAccount7 does
+             * nothing. However, it might be that other information needs to be stored in
+             * BabyAccount7 (perhaps the name of a parent or guardian of the account holder).
+             * This can be set by the BabyAccount7 constructor in the BabyAccount7 constructor
+             * body. */             
+            public BabyAccount7(decimal initialBalance) : base(initialBalance)
+            {
+
+            }
+
+            public override bool WithdrawFunds(decimal amount)
+            {
+                if (amount > 10)
+                {
+                    return false;
+                }
+                else
+                {
+                    return base.WithdrawFunds(amount);
+                }
+            }
+        }
+
+        /* At the moment we are using overriding to modify the behavior of an existing parent method.
+         * However, it is also possible to use overriding in a slightly different context. You can 
+         * use it to force a set of behaviors on items in a class hierarchy. If there are some things
+         * that an account must do then we can make these abstract and then force the child classes
+         * to provide the implementation.
+         * For example, in the context of the bank application you might want to provide a method that
+         * creates the text of a warning letter to the customer telling them that their account is
+         * overdraw. This will have to be different for each type of account (you don't want to use
+         * the same language to a baby account holder as you do for a normal account). This means
+         * that at the time you create the bank account system you know that you need this method, but
+         * you don't know what it does in every situation.
+         * You can provide a virtual "default" method in the BankAccount4 class and then rely on the 
+         * programmers overriding this witha  more specific message, but you then have no way of making
+         * sure that they really do perform the override. C# provides a way of flagging a method as 
+         * abstract. This means that the method body is not provided in this class, but will be provided
+         * in a child class.
+         * The fact that the BankAccount4 class contains an abstract method means that the class itself
+         * is abstract (and must be marked as such). It is not possible to make an instance of an 
+         * abstract class. If you think about it this is sensible. An instance of BankAccount4  would
+         * not know what to do if the WarningLetterString method was ever called.
+         * An abstract class can be tought of as a kind of template. If you want to make an instance 
+         * of a class based on an abstract parent you must provide implementations of all the abstract
+         * methods given in the parent.
+         * Abstract classes are different from interfaces in that they can contain fully implemented
+         * methods alongside the abstract ones. This can be useful because it means you don't have
+         * to repeatedly implement the same methods in each of the components that implement a
+         * particular interface. */         
+        public abstract class BankAccount4
+        {
+            public abstract string WarningLetterString();
+        }
+
         #endregion
 
         #region IPrintableInterfaceExample Method
@@ -411,5 +568,22 @@ namespace Skill2_4_CreateImplementClassHierarchy
         }
 
         #endregion
+
+        #region BankAccountConstructorExample Method
+
+        private static void BankAccountConstructorExample()
+        {
+            /* You can now set the initial balance of an account when one is created.
+             * The following statement creates a new bank account with an initial
+             * balance of 100. */
+            IAccount a = new BankAccount3(100);
+            IAccount b = new BabyAccount7(100);
+
+            Console.WriteLine(a.GetBalance());
+            Console.WriteLine(b.GetBalance());
+        }
+
+        #endregion
+
     }
 }

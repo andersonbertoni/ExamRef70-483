@@ -18,7 +18,8 @@ namespace Skill2_4_CreateImplementClassHierarchy
             BabyAccount = 3,
             OverridenWithdrawFunds = 4,
             BaseMethod = 5,
-            BankAccountConstructor = 6
+            BankAccountConstructor = 6,
+            ComparingBankAccounts = 7
         }
 
         static void Main(string[] args)
@@ -60,6 +61,9 @@ namespace Skill2_4_CreateImplementClassHierarchy
                     case Items.BankAccountConstructor:
                         BankAccountConstructorExample();
                         break;
+                    case Items.ComparingBankAccounts:
+                        ComparingBankAccountsExample();
+                        break;
                     case Items.Sair:
                         run = false;
                         break;
@@ -72,7 +76,7 @@ namespace Skill2_4_CreateImplementClassHierarchy
                 }
             }
         }
-        
+
         #region Classes and Interfaces
 
         /* Consider a printing service that will print objects in an application. You can create an interface 
@@ -469,6 +473,69 @@ namespace Skill2_4_CreateImplementClassHierarchy
             public abstract string WarningLetterString();
         }
 
+        /* The IComparable interface is used by .NET to determine the ordering of objects 
+         * when they are sorted. The interface contains a single method, CompareTo, wich
+         * compares this object with another. The CompareTo method returns an integer:
+         *      < 0 - indicates that this object should be placed before the one it is being
+         *      compared with;
+         *      = 0 - indicates that this object should be placed at the same position as
+         *      the one it is being compared with;
+         *      > 0 - means that this object should be placed after the one it is being
+         *      compared with.
+         * We can allow the bank accounts to be sorted in order of balance by making the
+         * BankAccount5 class implement the IComparable interface and adding a CompareTo
+         * method to the BankAccount5 class. */
+        public class BankAccount5 : IAccount, IComparable
+        {
+            private decimal _balance;
+
+            /* The CompareTo method is supplied with an obkect reference, which must be
+             * converted into an IAccount reference so that a BankAccount5 instance can
+             * be compared with any other object that implements the IAccount reference.
+             * The CompareTo method is simplified by using the CompareTo method of the 
+             * decimal balance method to create the result. */
+            public int CompareTo(object obj)
+            {
+                //If we are being compared with a null object we are definitely after it
+                if (obj == null)
+                    return 1;
+
+                //Convert the object reference into an account reference
+                IAccount account = obj as IAccount;
+
+                //as generates null if the conversion fails
+                if (account == null)
+                    throw new ArgumentException("Object is not an account");
+
+                //use the balance value as the basis of the comparison
+                return this._balance.CompareTo(account.GetBalance());
+            }
+
+            decimal IAccount.GetBalance()
+            {
+                return _balance;
+            }
+
+            void IAccount.PayInFunds(decimal amount)
+            {
+                _balance = _balance + amount;
+            }
+
+            public virtual bool WithdrawFunds(decimal amount)
+            {
+                if (_balance < amount)
+                    return false;
+
+                _balance = _balance - amount;
+                return true;
+            }
+
+            public BankAccount5(decimal initialBalance)
+            {
+                _balance = initialBalance;
+            }
+        }
+
         #endregion
 
         #region IPrintableInterfaceExample Method
@@ -581,6 +648,35 @@ namespace Skill2_4_CreateImplementClassHierarchy
 
             Console.WriteLine(a.GetBalance());
             Console.WriteLine(b.GetBalance());
+        }
+
+        #endregion
+
+        #region ComparingBankAccountsExample Method
+
+        
+        /* Once the BankAccount5 has been made to implement the IComparable interface,
+         * we can use the Sort behaviors provided by collection types. The code below
+         * creates a list of 20 accounts and sorts them using the Sort method provided
+         * by the List collection type. */
+        private static void ComparingBankAccountsExample()
+        {
+            List<IAccount> accounts = new List<IAccount>();
+            Random rand = new Random(1);
+
+            //Create 20 accounts with random balances
+            for(int i = 0; i < 20; i++)
+            {
+                IAccount account = new BankAccount5(rand.Next(0, 10000));
+                accounts.Add(account);
+            }
+
+            //Sorts the accounts
+            accounts.Sort();
+
+            //Display the sorted accounts
+            foreach (IAccount account in accounts)
+                Console.WriteLine(account.GetBalance());
         }
 
         #endregion

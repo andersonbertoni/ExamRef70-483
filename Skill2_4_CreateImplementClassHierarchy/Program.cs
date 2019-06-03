@@ -19,7 +19,10 @@ namespace Skill2_4_CreateImplementClassHierarchy
             OverridenWithdrawFunds = 4,
             BaseMethod = 5,
             BankAccountConstructor = 6,
-            ComparingBankAccounts = 7
+            ComparingBankAccounts = 7,
+            TypedIComparable = 8,
+            GetAnEnumerator = 9,
+            UsingForeach = 10
         }
 
         static void Main(string[] args)
@@ -63,6 +66,15 @@ namespace Skill2_4_CreateImplementClassHierarchy
                         break;
                     case Items.ComparingBankAccounts:
                         ComparingBankAccountsExample();
+                        break;
+                    case Items.TypedIComparable:
+                        TypedIComparableExample();
+                        break;
+                    case Items.GetAnEnumerator:
+                        GetAnEnumeratorExample();
+                        break;
+                    case Items.UsingForeach:
+                        UsingForeachExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -489,11 +501,11 @@ namespace Skill2_4_CreateImplementClassHierarchy
         {
             private decimal _balance;
 
-            /* The CompareTo method is supplied with an obkect reference, which must be
+            /* The CompareTo method is supplied with an object reference, which must be
              * converted into an IAccount reference so that a BankAccount5 instance can
              * be compared with any other object that implements the IAccount reference.
              * The CompareTo method is simplified by using the CompareTo method of the 
-             * decimal balance method to create the result. */
+             * decimal balance method to create the result. */             
             public int CompareTo(object obj)
             {
                 //If we are being compared with a null object we are definitely after it
@@ -536,6 +548,74 @@ namespace Skill2_4_CreateImplementClassHierarchy
             }
         }
 
+        /* The IComparable interface uses a CompareTo method that accepts an object reference as a parameter.
+         * This reference should refer to an object of the same type as the object that is doing the comparing,
+         * i.e. the CompareTo method in type x should be supplied with a reference to type x as a parameter.
+         * In the previous example, the CompareTo method for the BankAccount5 will throw an exception if a
+         * program attempts to compare a bank account with something that isn't a bank account. However, this
+         * error will be produced when the program runs, not when the program is compiled. The following two
+         * statements compile correctly even though they are clearly incorrect because they are trying to 
+         * compare a bank account to a string:
+         *      BankAccount5 b = new BankAccount5(100);
+         *      b.CompareTo("hello");
+         *               
+         * 
+         */
+        public interface IAccount2 : IComparable<IAccount2>
+        {
+            void PayInFunds(decimal amount);
+            bool WithdrawFunds(decimal amount);
+            decimal GetBalance();
+        }
+
+        public class BankAccount6 : IAccount2
+        {
+            private decimal _balance;
+
+            /* There is another version of the IComparable interface that accepts a type. This can be used to create
+             * a CompareTo that only accepts parameters of a specified type. The class below shows how this works.
+             * The CompareTo method now accepts a parameter of type IAccount2. There is no need to cast this to a
+             * IAccount2 before performing the comparison and does not have to throw an exception if an invalid 
+             * type is supplied. 
+             * Note that for the use of typed IComparable to be made to work with objects managed by the IAccount2
+             * interface we had to change the definition of the IAccount2 interface so that it extends the IComparable
+             * interface. This ensures that any objects that implement the IAccount2 interface also implement the
+             * IComparable interface. From this we can see that it is possible to create interface hierarchies as well
+             * class hierarchies. */
+            public int CompareTo(IAccount2 account)
+            {
+                //if we are being compared with a null object we are definitely after it
+                if (account == null) return 1;
+
+                //use the balance value as the basis of the comparison
+                return this._balance.CompareTo(account.GetBalance());
+            }
+
+            public BankAccount6(decimal initialBalance)
+            {
+                this._balance = initialBalance;
+            }
+
+            decimal IAccount2.GetBalance()
+            {
+                return _balance;
+            }
+
+            void IAccount2.PayInFunds(decimal amount)
+            {
+                _balance = _balance + amount;
+            }
+
+            bool IAccount2.WithdrawFunds(decimal amount)
+            {
+                if (_balance < amount)
+                    return false;
+
+                _balance = _balance - amount;
+                return true;
+            }
+        }
+
         #endregion
 
         #region IPrintableInterfaceExample Method
@@ -557,7 +637,7 @@ namespace Skill2_4_CreateImplementClassHierarchy
          * (a particular account class).
          * In C# terms this means that you need to create reference variables that refer to objects in terms 
          * of interfaces they implement, rather than the particular type they are. */
-        private static void IAccountInterfaceExample()
+            private static void IAccountInterfaceExample()
         {
             /* The account variable is allowed to refer to objects that implement the IAccount interface. The 
              * compiler will check to make sure that BankAccount does this, and if it does, the compilation
@@ -681,5 +761,79 @@ namespace Skill2_4_CreateImplementClassHierarchy
 
         #endregion
 
+        #region TypedIComparableExample Method
+
+        private static void TypedIComparableExample()
+        {
+            //Create 20 accounts with random balances
+            List<IAccount2> accounts = new List<IAccount2>();
+            Random rand = new Random(1);
+            for(int i = 0; i< 20; i++)
+            {
+                IAccount2 account = new BankAccount6(rand.Next(0, 10000));
+                accounts.Add(account);
+            }
+
+            //Sort the accounts
+            accounts.Sort();
+
+            //Display the sorted accounts
+            foreach(IAccount2 account in accounts)
+            {
+                Console.WriteLine(account.GetBalance());
+            }
+        }
+
+        #endregion
+
+        #region GetAnEnumeratorExample Method
+
+        /* Programs spend a lot of time consuming lists and other collections of items.
+         * This is called iterating or enumerating.
+         * Any C# object caan implement the IEnumerable interface that allows other programs
+         * to get an enumerator from that object. The enumerator object can then be used
+         * to enumerate (or iterate) on the object.
+         * The string type supports enumeration, and so a program can call the GetEnumerator
+         * method on a string instance to get an enumerator. 
+         * The program prints out the "Hello World" string one character at a time. The while
+         * construction uses the MoveNext and Current members of the enumerator to do this. */ 
+        private static void GetAnEnumeratorExample()
+        {
+            /* The enumerator exposes the method
+             * MoveNext, which returns the value true if it was able to move onto another 
+             * item in the enumeration. */
+          //Get an enumerator that can iterate through a string
+          var stringEnumerator = "Hello World".GetEnumerator();
+
+            while (stringEnumerator.MoveNext())
+            {
+                /* The enumerator also exposes a property called Current, which is a
+                 * reference to the currently selected item in the enumerator. */
+                Console.Write(stringEnumerator.Current);
+                Console.Write(' ');
+            }
+
+            Console.WriteLine();
+        }
+
+        #endregion
+
+        #region UsingForeachExample Method
+        
+        /* You can consume all the iterators as showed in the previous example, but C# makes life
+         * easier by providing the foreach construction, which automatically gets the enumerator 
+         * from the object and the works through it. The next example shows how we would iterate 
+         * through the same string using a foreach construction. */
+        private static void UsingForeachExample()
+        {
+            foreach(char ch in "Hello World")
+            {
+                Console.Write(ch);
+                Console.Write(' ');
+            }
+            Console.WriteLine();
+        }
+
+        #endregion
     }
 }

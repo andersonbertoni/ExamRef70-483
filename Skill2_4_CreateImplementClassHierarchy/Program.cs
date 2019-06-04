@@ -1,5 +1,6 @@
 ﻿using Shared;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,9 @@ namespace Skill2_4_CreateImplementClassHierarchy
             ComparingBankAccounts = 7,
             TypedIComparable = 8,
             GetAnEnumerator = 9,
-            UsingForeach = 10
+            UsingForeach = 10,
+            CreatingAnEnumerableType = 11,
+            UsingYield = 12
         }
 
         static void Main(string[] args)
@@ -75,6 +78,12 @@ namespace Skill2_4_CreateImplementClassHierarchy
                         break;
                     case Items.UsingForeach:
                         UsingForeachExample();
+                        break;
+                    case Items.CreatingAnEnumerableType:
+                        CreatingAnEnumerableTypeExample();
+                        break;
+                    case Items.UsingYield:
+                        UsingYieldExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -616,6 +625,116 @@ namespace Skill2_4_CreateImplementClassHierarchy
             }
         }
 
+        /* The IEnumerable interface allows you to create objects that can be enumerated within your programs, for
+         * example by the foreach loop construction. Collection classes, and results returned by LINQ queries 
+         * implement this interface.
+         * The class below implements both the IEnumerable interface (meaning it can be enumerated) and the 
+         * IEnumerator<int> interface (meaning that it contains a call of GetEnumerator to get an enumerator from it).
+         * An EnumeratorThing instance performs an iteration up to a limit that was set when it was created. Note 
+         * that the EnumeratorThing class contains the Current property and the MoveNext behavior that was used in
+         * previous example when we wrote code that consumed an enumerator. */
+        class EnumeratorThing : IEnumerator<int>, IEnumerable
+        {
+            int count;
+            int limit;
+
+            public int Current
+            {
+                get
+                {
+                    return count;
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return count;
+                }
+            }            
+
+            public void Dispose()
+            {
+                
+            }
+
+            public bool MoveNext()
+            {
+                if (++count == limit)
+                    return false;
+                else
+                    return true;
+            }
+
+            public void Reset()
+            {
+                count = 0;
+            }
+
+            public IEnumerator GetEnumerator()
+            {
+                return this;
+            }
+
+            public EnumeratorThing(int limit)
+            {
+                count = 0;
+                this.limit = limit;
+            }
+        }
+
+        /* We can create enumerators as we did in last example, but this is quite complicated. To make it easier to 
+         * create iterators C# includes the yield keyword. The keyword yield is followed by the return keyword and 
+         * precedes the value to be returned for the current iteration. The C# compiler generates all the Current 
+         * and MoveNext behaviors that make the iteration work, and also records the state of the iterator method
+         * so that the iterator method resumes at the statement following the yield statement when the next iteration
+         * is requested. The EnumeratorThing2 class provides exactly the same behavior as the EnumeratorThing class, 
+         * but it is much simpler. 
+         * The yield keyword does two things. It specifies the value to be returned for a given iteration, and it also
+         * returns control to the iterating method. */         
+        class EnumeratorThing2 : IEnumerable<int>
+        {
+            private int limit;
+
+            public IEnumerator<int> GetEnumerator()
+            {
+                for (int i = 1; i < limit; i++)
+                    yield return i;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public EnumeratorThing2(int limit)
+            {
+                this.limit = limit;
+            }
+        }
+        /* You can express an iterator that returns the values 1, 2, 3 as follows. */
+        class EnumeratorThing3 : IEnumerable<int>
+        {
+            public IEnumerator<int> GetEnumerator()
+            {
+                /* When the first yield is reached the enumerator returns the value 1. */
+                yield return 1;
+                /* The next time that the enumerator is called (in other words the next time round the loop) 
+                 * the enumerator resumes at the statement following the first yield. This is another yield 
+                 * that return 2. */
+                yield return 2;
+                /* This continues, with the value 3 being returned by the third yield. When the enumerator 
+                 * method ends this has the effect of ending the loop. */
+                yield return 3;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+
         #endregion
 
         #region IPrintableInterfaceExample Method
@@ -832,6 +951,36 @@ namespace Skill2_4_CreateImplementClassHierarchy
                 Console.Write(' ');
             }
             Console.WriteLine();
+        }
+
+        #endregion
+
+        #region CreatingAnEnumerableTypeExample Method
+
+        private static void CreatingAnEnumerableTypeExample()
+        {
+            /* You can use an EnumeratorThing instance in a foreach loop */
+            EnumeratorThing e = new EnumeratorThing(10);
+
+            foreach(int i in e)
+            {
+                Console.WriteLine(i);
+            }
+        }
+
+        #endregion
+
+        #region UsingYieldExample Method
+
+        private static void UsingYieldExample()
+        {
+            EnumeratorThing2 e = new EnumeratorThing2(10);
+            foreach (int i in e)
+                Console.WriteLine(i);
+
+            EnumeratorThing3 e3 = new EnumeratorThing3();
+            foreach (int i in e3)
+                Console.WriteLine(i);
         }
 
         #endregion

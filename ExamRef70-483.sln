@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill1_1_MultiThreadingAsynchronousProcessing", "Skill1_1_MultiThreadingAsynchronousProcessing\Skill1_1_MultiThreadingAsynchronousProcessing.csproj", "{EE46D72B-6DC8-4A7A-9594-A0BCFBC66588}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill2_3_EnforceEncapsulation", "Skill2_3_EnforceEncapsulation\Skill2_3_EnforceEncapsulation.csproj", "{67D1114D-CE68-47CE-B281-3D626076DFED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill2_4_CreateImplementClassHierarchy", "Skill2_4_CreateImplementClassHierarchy\Skill2_4_CreateImplementClassHierarchy.csproj", "{349C391A-0E39-4DC4-8C95-2C7675465435}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skill2_5_UsingReflection", "Skill2_5_UsingReflection\Skill2_5_UsingReflection.csproj", "{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -243,6 +245,22 @@ Global
 		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x64.Build.0 = Release|Any CPU
 		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x86.ActiveCfg = Release|Any CPU
 		{349C391A-0E39-4DC4-8C95-2C7675465435}.Release|x86.Build.0 = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|ARM.Build.0 = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|x64.Build.0 = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Debug|x86.Build.0 = Debug|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|ARM.ActiveCfg = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|ARM.Build.0 = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|x64.ActiveCfg = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|x64.Build.0 = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|x86.ActiveCfg = Release|Any CPU
+		{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

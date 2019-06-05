@@ -25,7 +25,8 @@ namespace Skill2_4_CreateImplementClassHierarchy
             GetAnEnumerator = 9,
             UsingForeach = 10,
             CreatingAnEnumerableType = 11,
-            UsingYield = 12
+            UsingYield = 12,
+            UsingIDisposable = 13
         }
 
         static void Main(string[] args)
@@ -84,6 +85,9 @@ namespace Skill2_4_CreateImplementClassHierarchy
                         break;
                     case Items.UsingYield:
                         UsingYieldExample();
+                        break;
+                    case Items.UsingIDisposable:
+                        UsingIDisposableExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -735,6 +739,29 @@ namespace Skill2_4_CreateImplementClassHierarchy
             }
         }
 
+        /* C# provides memory management for applications, but it can't control how programs use other 
+         * resources such as file handles, database connections and lock objects. While an object can
+         * get control when it is removed by the garbage collector, it is hard to know precisely when
+         * this happens. It may not even happen until the program ends.
+         * The IDisposable interface provides a way that an object can indicate that it contains an
+         * explicit Dispose method that can be used to tidy up an object when an application has
+         * finished using it. A disposed object may exist in memory, but any attempts to use it will
+         * result in the ObjectDisposedException being thrown.
+         * Note that the action of the Dispose method depends entirely on the needs of the application.
+         * Note also that the Dispose method is not called automatically when an object is deleted from
+         * memory. There are two ways to make sure that Dispose is called correctly: we can call the
+         * method ourself in the application, or we can make use of the C# using construction.
+         * In the class below we create a class that allocates resources that must be disposed of.
+         * The CrucialConnection class implements IDisposable and contains a Dispose method which, in
+         * this case, just prints a message. */
+        class CrucialConnection : IDisposable
+        {
+            public void Dispose()
+            {
+                Console.WriteLine("Dispose called");
+            }
+        }
+
         #endregion
 
         #region IPrintableInterfaceExample Method
@@ -981,6 +1008,27 @@ namespace Skill2_4_CreateImplementClassHierarchy
             EnumeratorThing3 e3 = new EnumeratorThing3();
             foreach (int i in e3)
                 Console.WriteLine(i);
+        }
+
+        #endregion
+
+        #region UsingIDisposableExample Method
+
+        private static void UsingIDisposableExample()
+        {
+            /* The using construction creates an instance of the CrucialConnection class and is then 
+             * followed by the block of code that uses this instance. When the program exits the using 
+             * block the Dispose method is called on the CrucialConnection instance. When the program 
+             * runs it will print the message "Dispose called". 
+             * The C# using construction is a good way to ensure that Dispose is called correctly
+             * because it incorporates exception handling so that if an exception is thrown by the
+             * code using the object the Dispose method is automatically called on the object being
+             * used. If you have a number of objects that need to be disposed you can nest using blocks
+             * inside each other. */
+            using (CrucialConnection c = new CrucialConnection())
+            {
+                Console.WriteLine("Doing something with the crucial connection");
+            }
         }
 
         #endregion

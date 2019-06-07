@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EF8FE9C6-E3C9-4D21-B88C-1BB1A234EEFF}</ProjectGuid>
+    <ProjectGuid>{646E0400-CC9B-4EBC-B606-110EFC9DE673}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Skill2_5_UsingReflection</RootNamespace>
-    <AssemblyName>Skill2_5_UsingReflection</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>Skill2_6_ManageObjectLifeCycle</RootNamespace>
+    <AssemblyName>Skill2_6_ManageObjectLifeCycle</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>

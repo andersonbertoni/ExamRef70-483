@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +34,12 @@ namespace Skill2_5_UsingReflection
             ReflectionMethodCall = 6,
             FindingComponents = 7,
             LINQComponents = 8,
-            CodeDOMObject = 9
+            CodeDOMObject = 9,
+            LambdaExpressionTree = 10,
+            ModifyingAnExpressionTree = 11,
+            AssemblyObject = 12,
+            PropertyInfo = 13,
+            MethodReflection = 14
         }
 
         static void Main(string[] args)
@@ -83,6 +89,21 @@ namespace Skill2_5_UsingReflection
                         break;
                     case Items.CodeDOMObject:
                         CodeDOMObjectExample();
+                        break;
+                    case Items.LambdaExpressionTree:
+                        LambdaExpressionTreeExample();
+                        break;
+                    case Items.ModifyingAnExpressionTree:
+                        ModifyingAnExpressionTreeExample();
+                        break;
+                    case Items.AssemblyObject:
+                        AssemblyObjectExample();
+                        break;
+                    case Items.PropertyInfo:
+                        PropertyInfoExample();
+                        break;
+                    case Items.MethodReflection:
+                        MethodReflectionExample();
                         break;
                     case Items.Sair:
                         run = false;
@@ -284,6 +305,49 @@ namespace Skill2_5_UsingReflection
         /****************************************************************************************************
          * CLASSES AND INTERFACES TO USE WITH THE EXAMPLE FindingComponentsExample
          ****************************************************************************************************/
+
+        /* An expression tree is immutable, which means that the elements in the expression cannot
+         * be changed once the expression has been created. To modify an expression tree you must
+         * make a copy of the tree which contains the modified behaviors.
+         * The example below shows how this is done using a class called ExpressionVisitor, which
+         * parses and copies each element of the expression tree. By extending the ExpressionVisitor
+         * base class and overriding different visit methods that it provides, you can create a class
+         * that will perform modification of the particular elements we are interested in. The 
+         * MultiplyToAdd class will change any multiply operations in an expression to add. */
+        public class MultiplyToAdd : ExpressionVisitor
+        {
+            public Expression Modify(Expression expression)
+            {
+                return Visit(expression);
+            }
+
+            protected override Expression VisitBinary(BinaryExpression b)
+            {
+                if (b.NodeType == ExpressionType.Multiply)
+                {
+                    Expression left = this.Visit(b.Left);
+                    Expression right = this.Visit(b.Right);
+
+                    return Expression.Add(left, right);
+                }
+
+                return base.VisitBinary(b);
+            }
+        }
+
+        public class Person4
+        {
+            public string Name { get; set; }
+            public string Age { get; }
+        }
+
+        public class Calculator
+        {
+            public int AddInt(int v1, int v2)
+            {
+                return v1 + v2;
+            }
+        }
 
         #endregion
 
@@ -560,6 +624,209 @@ namespace Skill2_5_UsingReflection
 
             //Print the C# output
             Console.WriteLine(s.ToString());
+        }
+
+        #endregion
+
+        #region LambdaExpressionTreeExample Method
+
+        /* A lambda expression is a way of expressing a data processing action (a value goes in and
+         * a result comes out). We can express a single action in a program by the use of a single 
+         * lambda expression. More complex action can be expressed in expression trees. If we think
+         * about it, the structure of a CodeDOM object is very like a tree, in that the root object
+         * contains elements that branch out from it. The elements in the root object can also contain
+         * other elements, leading to a tree like structure that describes the elements in the program
+         * that is being created. Expression trees are widely used in C#, particularly in the context
+         * of LINQ. The code that generates the result of a LINQ query will be created as an expression
+         * tree.
+         * A lambda expression tree has as its base a lambda expression. The code below shows how to 
+         * create an expression tree that describes a lambda expression that evaluates the square of
+         * the incoming value. This code makes use of the FUNC delegate. There are a number of bult-in
+         * types for use with delegates, but the FUNC delegate allow us to define a delegate that accepts
+         * a number of inputs and returns a single result. 
+         * The System.Linq.Expressions namespace contains a range of other types that can be used to
+         * represent other code elements in lambda expressions, including conditional operation, loops
+         * and collections. */
+        private static void LambdaExpressionTreeExample()
+        {
+            //build the expression tree: Expression<Func<int,int>> square = num => num * num;
+
+            //The parameter for the expression is an integer
+            ParameterExpression numParam = Expression.Parameter(typeof(int), "num");
+
+            //The operation to be performed is to square the parameter
+            BinaryExpression squareOperation = Expression.Multiply(numParam, numParam);
+
+            //This creates an expression tree that describes the square operation
+            Expression<Func<int, int>> square = Expression.Lambda<Func<int, int>>(
+                                                    squareOperation, 
+                                                    new ParameterExpression[] { numParam });
+
+            //Compile the tree to make an executable method and assign it to a delegate
+            Func<int, int> doSquare = square.Compile();
+
+            //Call the delegate
+            Console.WriteLine("Square of 2: {0}", doSquare(2));
+        }
+
+        #endregion
+
+        #region ModifyingAnExpressionTreeExample Method
+        
+        /* We can use the MultiplyToAdd class to modify the expression created in previous example 
+         * and create a new method that doubles any parameter given to it. */
+        private static void ModifyingAnExpressionTreeExample()
+        {
+            //build the expression tree: Expression<Func<int,int>> square = num => num * num;
+
+            //The parameter for the expression is an integer
+            ParameterExpression numParam = Expression.Parameter(typeof(int), "num");
+
+            //The operation to be performed is to square the parameter
+            BinaryExpression squareOperation = Expression.Multiply(numParam, numParam);
+
+            //This creates an expression tree that describes the square operation
+            Expression<Func<int, int>> square = Expression.Lambda<Func<int, int>>(
+                                                    squareOperation,
+                                                    new ParameterExpression[] { numParam });
+
+            //Compile the tree to make an executable method and assign it to a delegate
+            Func<int, int> doSquare = square.Compile();
+
+            //Call the delegate
+            Console.WriteLine("Square of 2: {0}", doSquare(2));
+
+            //Modify the expression to replace the multiply with an add
+            MultiplyToAdd m = new MultiplyToAdd();
+            Expression<Func<int, int>> addExpression = (Expression<Func<int, int>>)m.Modify(square);
+            Func<int, int> doAdd = addExpression.Compile();
+
+            Console.WriteLine("Double of 4: {0}", doAdd(4));
+        }
+
+        #endregion
+
+        #region AssemblyObjectExample Method
+
+        /* An assembly is the output produced when a .NET project is compiled. The assembly type
+         * represents the contents of an assembly, which can be the currently executing assembly
+         * or one that is loaded from a file.
+         * The Assembly class provides a way that programs can use reflection on the contents of
+         * the assembly, any dependencies that the assembly has on other files, and the definition
+         * of any types that are declared in the assembly. The example below displays information
+         * about an assembly incluiding the modules defined in the assembly, the types in the 
+         * modules and the content of each type. */
+        private static void AssemblyObjectExample()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            Console.WriteLine("Full name: {0}", assembly.FullName);
+            AssemblyName name = assembly.GetName();
+            Console.WriteLine("Major version: {0}", name.Version.Major);
+            Console.WriteLine("Minor version: {0}", name.Version.Minor);
+            Console.WriteLine("In global assembly cache: {0}", assembly.GlobalAssemblyCache);
+
+            foreach(Module assemblyModule in assembly.Modules)
+            {
+                Console.WriteLine("     Module: {0}", assemblyModule.Name);
+                foreach(Type moduleType in assemblyModule.GetTypes())
+                {
+                    Console.WriteLine("         Type: {0}", moduleType.Name);
+                    foreach(MemberInfo member in moduleType.GetMembers())
+                    {
+                        Console.WriteLine("             Member: {0}", member.Name);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region PropertyInfoExample Method
+
+        /* A C# property provides a quick way of providing get and set behaviors for a data
+         * variable in a type. The PropertyInfo class provides details of a property,
+         * including the MethodInfo information for the get and set behaviors if they are 
+         * present. The code belows enumerates the properties in a type and prints information
+         * about each one. */
+        private static void PropertyInfoExample()
+        {
+            Type type = typeof(Person4);
+
+            foreach(PropertyInfo p in type.GetProperties())
+            {
+                Console.WriteLine("Property name: {0}", p.Name);
+                if(p.CanRead)
+                {
+                    Console.WriteLine("  Can read");
+                    Console.WriteLine("  Get method: {0}", p.GetMethod);
+                }
+
+                if(p.CanWrite)
+                {
+                    Console.WriteLine("  Can write");
+                    Console.WriteLine("  Set method: {0}", p.SetMethod);
+                }
+            }
+        }
+
+        #endregion
+
+        #region MethodReflectionExample Method
+
+        /* The MethodInfo class holds data about a method in a type. This includes the signature 
+         * of the method, the return type of the method, details of method parameters and even
+         * the byte code that forms the body of the method. The program below will work through
+         * a method and display this information from all the methods in a class. This code also
+         * makes use of the Invoke method to invoke a method from its method information and
+         * MethodInvoke to invoke a method from a class. */
+        private static void MethodReflectionExample()
+        {
+            Console.WriteLine("Get the type information for the Calculator class");
+            /* A type instance describes the contents of a C# type, including a collection holding
+             * all the methods, another containing all the class variables, another containing
+             * properties, and so on. It also contains a collection of attribute class instances
+             * associated with this type and details of the Base type from which the type is derived.
+             * The GetType method can be called on any instance to obtain a reference to the type
+             * for that object, and the typeof method can be used on any type to obtain the type
+             * object that describes that type. */
+            Type type = typeof(Calculator);
+
+            Console.WriteLine("Get the method info for the AddInt method");
+            MethodInfo addIntMethodInfo = type.GetMethod("AddInt");
+
+            Console.WriteLine("Get the IL instructions for the AddInt method");
+            MethodBody addIntMethodBody = addIntMethodInfo.GetMethodBody();
+
+            // print the IL instructions
+            foreach(byte b in addIntMethodBody.GetILAsByteArray())
+            {
+                Console.Write("  {0:X}", b);
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("Create Calculator instance");
+            Calculator calc = new Calculator();
+
+            Console.WriteLine("Create parameter array for the method");
+            object[] inputs = new object[] { 1, 2 };
+
+            Console.WriteLine("Call Invoke on the method info");
+            Console.WriteLine("Cast the result to an integer");
+
+            /* Note that to invoke a method you must provide an array of parameters for the method to work on,
+             * and the invoke methods return an object reference that must be cast to the actual type of the method. */
+            int result = (int)addIntMethodInfo.Invoke(calc, inputs);
+            Console.WriteLine("Result of: {0}", result);
+
+            Console.WriteLine("Call InvokeMember on the type");
+            result = (int)type.InvokeMember("AddInt",
+                                    BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public,
+                                    null,
+                                    calc,
+                                    inputs);
+
+            Console.WriteLine("Result of: {0}", result);
         }
 
         #endregion
